@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+:root {
+  /* Default dark theme tokens */
+  --theme-bg: #0c0d0c;
+  --theme-bg-secondary: #141513;
+  --theme-surface: #141513;
+  --theme-surface-glass: rgba(18, 20, 18, 0.82);
+  --theme-surface-elevated: #1a1c19;
+  --theme-text: #F5F2EC;
+  --theme-text-muted: #9E9D96;
+  --theme-text-faint: #63625C;
+  --theme-border: rgba(255, 255, 255, 0.09);
+  --theme-border-hover: rgba(201, 169, 124, 0.45);
+  --theme-accent: #A8875B;
+  --theme-accent-light: #C9A97C;
+  --theme-accent-gold: #D4AF37;
+  --theme-nav-scrolled: rgba(12, 13, 12, 0.88);
+  --theme-canvas-bg: #0c0d0c;
+  --theme-tag-bg: rgba(255, 255, 255, 0.04);
+  --theme-tag-border: rgba(255, 255, 255, 0.1);
+  --theme-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+  --theme-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.light, [data-theme="light"] {
+  --theme-bg: #F6F4EE;
+  --theme-bg-secondary: #ECE8DF;
+  --theme-surface: #FFFFFF;
+  --theme-surface-glass: rgba(255, 255, 255, 0.88);
+  --theme-surface-elevated: #FAF8F5;
+  --theme-text: #141513;
+  --theme-text-muted: #5C5B55;
+  --theme-text-faint: #8E8D86;
+  --theme-border: rgba(20, 21, 19, 0.1);
+  --theme-border-hover: rgba(140, 109, 65, 0.55);
+  --theme-accent: #8C6D41;
+  --theme-accent-light: #A8875B;
+  --theme-accent-gold: #B8860B;
+  --theme-nav-scrolled: rgba(246, 244, 238, 0.92);
+  --theme-canvas-bg: #F6F4EE;
+  --theme-tag-bg: rgba(140, 109, 65, 0.08);
+  --theme-tag-border: rgba(140, 109, 65, 0.2);
+  --theme-shadow: 0 25px 60px rgba(20, 21, 19, 0.12);
+  --theme-card-shadow: 0 8px 25px rgba(20, 21, 19, 0.06);
+}
+
+html {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+::selection {
+  background-color: var(--theme-accent);
+  color: #FFFFFF;
+}
+
+/* Custom 3D & Glass Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Dynamic Theme Glassmorphism */
+.glass-panel {
+  background: var(--theme-surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-card-shadow);
+}
+
+/* Custom Cursor Rules */
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  a, button, input, select, textarea, [role="button"] {
+    cursor: none;
+  }
+}
+
+/* Marquee Animation */
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

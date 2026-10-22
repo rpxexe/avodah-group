@@ -3,6 +3,7 @@
 import React from "react";
 import CustomCursor from "@/components/CustomCursor";
 import ThreeArchitecturalBackground from "@/components/ThreeArchitecturalBackground";
+import SparkleBackground from "@/components/SparkleBackground";
 import Navigation from "@/components/Navigation";
 import ArchitecturalCanvasSequence from "@/components/ArchitecturalCanvasSequence";
 import MarqueeStrip from "@/components/MarqueeStrip";
@@ -21,6 +22,9 @@ export default function Home() {
 
       {/* 3D WebGL Architectural Grid & Particle Field (Three.js) */}
       <ThreeArchitecturalBackground />
+
+      {/* Interactive Golden Starlight & Sparkle Field throughout the website */}
+      <SparkleBackground />
 
       {/* Sticky Top Luxury Navigation with Theme Switcher */}
       <Navigation />

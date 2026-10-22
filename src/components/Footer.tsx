@@ -1,18 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUp } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
+const emptySubscribe = () => () => {};
+
 export default function Footer() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   const isLight = mounted && theme === "light";
 
@@ -30,24 +28,16 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="lg:col-span-5 flex flex-col">
             <Link href="#hero" className="flex items-center gap-3.5 mb-6 group">
-              <div className="relative flex items-center justify-center shrink-0 w-10 h-10" style={{ position: "relative", width: "40px", height: "40px" }}>
+              <div className="relative flex items-center shrink-0">
                 <Image
                   src="/assets/avodah-khen-logo.png"
                   alt="AVODAH & KHEN LLP"
-                  width={40}
-                  height={40}
-                  className={`object-contain transition-all duration-300 ${
+                  width={140}
+                  height={48}
+                  className={`h-9 sm:h-10 w-auto object-contain transition-all duration-300 group-hover:scale-105 ${
                     isLight ? "filter brightness-90 contrast-125" : "filter brightness-105"
                   }`}
                 />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-sans font-bold text-sm tracking-[0.2em] text-[var(--theme-text)] uppercase group-hover:text-[var(--theme-accent)] transition-colors">
-                  AVODAH &amp; KHEN
-                </span>
-                <span className="text-[10px] tracking-[0.28em] text-[var(--theme-accent)] uppercase font-semibold">
-                  LLP • Real Estate Advisory
-                </span>
               </div>
             </Link>
 
@@ -67,18 +57,18 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                "Sole Selling Mandates",
-                "Commercial Leasing Advisory",
-                "Real Estate Investment Sourcing",
-                "Portfolio & Asset Optimization",
-                "Developer Marketing Systems",
+                { name: "Sole Selling Mandates", href: "/mandate" },
+                { name: "Commercial Leasing Advisory", href: "/leasing-and-investment-advisory" },
+                { name: "Real Estate Investment Sourcing", href: "#services" },
+                { name: "Portfolio & Asset Optimization", href: "#services" },
+                { name: "Developer Marketing Systems", href: "#services" },
               ].map((item) => (
-                <li key={item}>
+                <li key={item.name}>
                   <Link
-                    href="#services"
+                    href={item.href}
                     className="text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] transition-colors"
                   >
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -92,10 +82,11 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { name: "PropTech Platform", href: "#ecosystem" },
-                { name: "FinTech Models", href: "#ecosystem" },
-                { name: "Market Reports", href: "#research" },
-                { name: "Firm Heritage", href: "#about" },
+                { name: "PropTech Platform", href: "/proptech" },
+                { name: "FinTech Models", href: "/fintech" },
+                { name: "Research & Intelligence", href: "/research" },
+                { name: "Who We Are", href: "/who-we-are" },
+                { name: "Careers", href: "/careers" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link

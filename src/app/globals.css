@@ -120,3 +120,27 @@ body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Feral UI Speech Cloud Text Containment & Overflow Prevention */
+.blob-bubble {
+  font-size: 0.8rem !important;
+  line-height: 1.25 !important;
+}
+
+.blob-bubble-textwrap {
+  padding: 0 18px !important;
+}
+
+.blob-bubble-text {
+  font-size: 0.8rem !important;
+  letter-spacing: -0.01em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 260px !important;
+}
+
+.blob-bubble-measure {
+  font-size: 0.8rem !important;
+  letter-spacing: -0.01em !important;
+}

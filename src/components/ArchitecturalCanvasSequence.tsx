@@ -1,14 +1,66 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Compass, Building2, ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown, Building2, ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import WobblyCard from "./WobblyCard";
 
 const TOTAL_FRAMES = 300;
 const FRAME_PREFIX = "/assets/video-frames/ezgif-frame-";
 const FRAME_EXT = ".jpg";
+
+// Helper: Format frame filename (001 ... 300)
+const formatFrameIdx = (num: number) => String(num).padStart(3, "0");
+const getFrameSrc = (num: number) => `${FRAME_PREFIX}${formatFrameIdx(num)}${FRAME_EXT}`;
+
+/**
+ * Magnetic Physics Wrapper: Smoothly attracts element towards mouse with spring physics
+ */
+function MagneticPhysicsWrapper({
+  children,
+  className = "",
+  strength = 0.25,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  strength?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const smoothX = useSpring(x, { stiffness: 240, damping: 18, mass: 0.4 });
+  const smoothY = useSpring(y, { stiffness: 240, damping: 18, mass: 0.4 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    x.set((e.clientX - centerX) * strength);
+    y.set((e.clientY - centerY) * strength);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: smoothX, y: smoothY }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+
 
 interface StageInfo {
   id: string;
@@ -145,10 +197,6 @@ export default function ArchitecturalCanvasSequence() {
   const loadedFlagsRef = useRef<boolean[]>(new Array(TOTAL_FRAMES).fill(false));
   const targetFrameRef = useRef(1);
   const currentFrameRef = useRef(1);
-
-  // Helper: Format frame filename (001 ... 300)
-  const formatFrameIdx = (num: number) => String(num).padStart(3, "0");
-  const getFrameSrc = (num: number) => `${FRAME_PREFIX}${formatFrameIdx(num)}${FRAME_EXT}`;
 
   // Find nearest loaded frame to eliminate flickering
   const getClosestLoadedFrame = useCallback((targetIdx: number): HTMLImageElement | null => {
@@ -349,9 +397,24 @@ export default function ArchitecturalCanvasSequence() {
     const normX = e.clientX / window.innerWidth - 0.5;
     const normY = e.clientY / window.innerHeight - 0.5;
     setMouseTilt({
-      rotateX: -normY * 4.5,
-      rotateY: normX * 4.5,
+      rotateX: -normY * 5.0,
+      rotateY: normX * 5.0,
     });
+  };
+
+  // 3D Touch Tilt for Mobile Devices
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!e.touches[0]) return;
+    const normX = e.touches[0].clientX / window.innerWidth - 0.5;
+    const normY = e.touches[0].clientY / window.innerHeight - 0.5;
+    setMouseTilt({
+      rotateX: -normY * 6.5,
+      rotateY: normX * 6.5,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    setMouseTilt({ rotateX: 0, rotateY: 0 });
   };
 
   // Smooth jump to specific narrative chapter
@@ -373,6 +436,8 @@ export default function ArchitecturalCanvasSequence() {
       ref={containerRef}
       id="hero"
       onMouseMove={handleMouseMove}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       className="relative w-full h-[580vh] bg-[var(--theme-bg)] transition-colors duration-300"
     >
       <div className="sticky top-0 left-0 w-screen h-screen overflow-hidden flex items-center justify-center perspective-1200">
@@ -420,55 +485,55 @@ export default function ArchitecturalCanvasSequence() {
           {/* HTML5 Canvas Rendering 300 Synchronized High-Res Frames */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block z-[1]" />
 
-          {/* Vignette & Cinematic Atmospheric Gradients */}
+          {/* Vignette & Cinematic Atmospheric Gradients - Clean and pure in light mode without white fog */}
           <div
             className="absolute inset-0 pointer-events-none z-[2] transition-opacity duration-500"
             style={{
               background: isLight
-                ? "radial-gradient(circle at center, transparent 38%, rgba(246,244,238,0.3) 72%, rgba(246,244,238,0.92) 100%)"
+                ? "transparent"
                 : "radial-gradient(circle at center, transparent 35%, rgba(12,13,12,0.45) 75%, rgba(12,13,12,0.88) 100%)",
             }}
           />
           <div
             className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-[2]"
             style={{
-              background: `linear-gradient(to top, var(--theme-bg), transparent)`,
+              background: isLight
+                ? "transparent"
+                : `linear-gradient(to top, var(--theme-bg), transparent)`,
             }}
           />
         </motion.div>
 
         {/* 3D Architectural Telemetry HUD */}
-        <div className="absolute inset-0 z-20 pointer-events-none p-6 sm:p-10 flex flex-col justify-between">
-          {/* HUD Top Bar */}
-          <div className="flex items-center justify-between mt-16 sm:mt-20">
-            <div className="flex items-center gap-2.5 text-[10px] sm:text-xs tracking-[0.22em] text-[var(--theme-accent)] uppercase font-semibold">
+        <div className="absolute inset-0 z-20 pointer-events-none p-4 sm:p-8 md:p-10 flex flex-col justify-between">
+          {/* HUD Top Bar - Positioned cleanly below fixed navbar */}
+          <div className="flex items-center justify-between mt-[76px] sm:mt-[84px] md:mt-[90px]">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.2em] text-[var(--theme-accent)] uppercase font-semibold">
               <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)] shadow-[0_0_10px_var(--theme-accent)] animate-pulse" />
               <span>19°04&apos;33&quot;N 72°52&apos;39&quot;E</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">ELEV 14M</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline">MUMBAI MMR</span>
+              <span className="hidden md:inline">•</span>
+              <span className="hidden md:inline">MUMBAI MMR</span>
             </div>
 
-            <div className="px-3.5 py-1.5 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] rounded-sm backdrop-blur-md text-[10px] sm:text-xs font-semibold tracking-[0.18em] text-[var(--theme-text)] uppercase shadow-md">
+            <div className="px-3 py-1 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] rounded-sm backdrop-blur-md text-[9px] sm:text-xs font-semibold tracking-[0.16em] text-[var(--theme-text)] uppercase shadow-md">
               {activeStage.phaseNumber} / {activeStage.phaseTitle}
             </div>
           </div>
 
           {/* HUD Bottom Bar */}
           <div className="flex items-end justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase font-semibold">
-                ARCHITECTURAL TELEMETRY
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[8px] sm:text-[9px] tracking-[0.22em] text-[var(--theme-text-muted)] uppercase font-semibold">
+                TELEMETRY
               </span>
-              <span className="font-mono text-sm sm:text-base font-bold tracking-wider text-[var(--theme-accent)]">
+              <span className="font-mono text-xs sm:text-sm font-bold tracking-wider text-[var(--theme-accent)]">
                 FRAME {formatFrameIdx(currentFrameNum)} / {TOTAL_FRAMES}
               </span>
             </div>
 
-            <div className="flex flex-col items-end gap-2 w-40 sm:w-60">
-              <span className="text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase font-medium">
-                SCROLL TO EXPLORE SPACES
+            <div className="flex flex-col items-end gap-1.5 w-32 sm:w-52">
+              <span className="text-[8px] sm:text-[9px] tracking-[0.22em] text-[var(--theme-text-muted)] uppercase font-medium">
+                SCROLL TO NAVIGATE
               </span>
               <div className="w-full h-[2px] bg-[var(--theme-border)] relative rounded-full overflow-hidden">
                 <div
@@ -480,128 +545,156 @@ export default function ArchitecturalCanvasSequence() {
           </div>
         </div>
 
-        {/* Narrative Overlays: Redesigned Grand Hero for Stage 1 & Stage Cards for 2-6 */}
-        <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center p-6 sm:p-12">
+        {/* Narrative Overlays: Anchored below the fixed navbar (top-[76px] sm:top-[88px]) so navbar NEVER overrides hero */}
+        <div className="absolute inset-x-0 bottom-0 top-[76px] sm:top-[88px] md:top-[92px] z-30 pointer-events-none flex items-center justify-center p-2.5 sm:p-5 md:p-6 pb-6 sm:pb-8 overflow-y-auto">
           <AnimatePresence mode="wait">
             {activeStage.id === "stage-1" ? (
               /* =========================================================================
-                 REDESIGNED GRAND HERO SECTION (Stage 01)
+                 STREAMLINED WOBBLY HERO CONSOLE (Stage 01) - ULTRA COMPACT & ELASTIC
                  ========================================================================= */
               <motion.div
                 key="hero-stage-1"
-                initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -30, scale: 0.98 }}
-                transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-5xl pointer-events-auto mx-auto text-center flex flex-col items-center"
+                exit={{ opacity: 0, y: -18, scale: 0.98 }}
+                transition={{ type: "spring", damping: 20, stiffness: 150 }}
+                className="w-full max-w-xl mx-auto pointer-events-auto relative px-2 my-auto"
               >
-                {/* Hero Badge */}
-                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface-glass)] backdrop-blur-md mb-6 shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)] animate-ping" />
-                  <span className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[var(--theme-accent)]">
-                    AVODAH &amp; KHEN LLP • ARCHITECTURAL REAL ESTATE
-                  </span>
-                </div>
+                {/* Wobbly Elastic Physics Card Wrapper */}
+                <WobblyCard wobbleIntensity={12} className="w-full">
+                  <div className="relative rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-surface-glass)]/92 backdrop-blur-2xl p-3 sm:p-4.5 md:p-5 shadow-[0_20px_45px_-12px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-300 hover:border-[var(--theme-accent)]/60 hover:shadow-[0_25px_50px_-10px_rgba(0,0,0,0.6)]">
+                    {/* Specular hairline top accent */}
+                    <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[var(--theme-accent)] to-transparent opacity-85" />
 
-                {/* Grand Architectural Headline */}
-                <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-normal text-[var(--theme-text)] leading-[1.04] mb-6 tracking-tight">
-                  Where Vision Meets<br />
-                  <span className="italic font-light text-[var(--theme-accent)]">Structural Reality.</span>
-                </h1>
+                    {/* Interactive Content Column */}
+                    <div className="relative z-20 flex flex-col items-center text-center">
+                      {/* Eyebrow Badge with Magnetic Physics */}
+                      <MagneticPhysicsWrapper strength={0.12} className="mb-2">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface-glass)] shadow-xs backdrop-blur-md">
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--theme-accent)] opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--theme-accent)]" />
+                          </span>
+                          <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.16em] uppercase text-[var(--theme-accent)]">
+                            AVODAH &amp; KHEN LLP • MUMBAI MMR
+                          </span>
+                          <span className="text-[var(--theme-border)] opacity-60">•</span>
+                          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.14em] uppercase text-[var(--theme-text-muted)] font-medium">
+                            SOLE SELLING MANDATES
+                          </span>
+                        </div>
+                      </MagneticPhysicsWrapper>
 
-                {/* Editorial Subtitle */}
-                <p className="text-base sm:text-lg text-[var(--theme-text)] opacity-85 leading-relaxed font-light mb-8 max-w-2xl mx-auto">
-                  A disciplined, design-led advisory firm curating Mumbai&apos;s most prestigious developer sole selling mandates, high-value commercial leasing, and connected PropTech ecosystems.
-                </p>
-
-                {/* Proof-Point Stat Chips Strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full max-w-3xl mb-9">
-                  {[
-                    { value: "₹2,500+ Cr", label: "Mandate Pipeline", icon: TrendingUp },
-                    { value: "20+ Years", label: "MMR Heritage", icon: Building2 },
-                    { value: "Cat A & B", label: "Sole Selling Partner", icon: ShieldCheck },
-                    { value: "PropTech", label: "Connected Platform", icon: Sparkles },
-                  ].map((stat, i) => {
-                    const Icon = stat.icon;
-                    return (
-                      <div
-                        key={i}
-                        className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-sm border border-[var(--theme-border)] bg-[var(--theme-surface-glass)] backdrop-blur-md shadow-sm group hover:border-[var(--theme-accent)] transition-colors"
-                      >
-                        <Icon className="w-4 h-4 text-[var(--theme-accent)] mb-1 opacity-80 group-hover:scale-110 transition-transform" />
-                        <span className="font-serif text-lg sm:text-xl font-medium text-[var(--theme-text)]">
-                          {stat.value}
+                      {/* Compact Editorial Headline */}
+                      <h1 className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-[34px] font-normal text-[var(--theme-text)] leading-[1.14] tracking-tight mb-2 max-w-xl">
+                        Where Vision Meets{" "}
+                        <span className="italic font-light text-[var(--theme-accent)]">
+                          Structural Reality.
                         </span>
-                        <span className="text-[10px] tracking-wider uppercase text-[var(--theme-text-muted)] font-medium mt-0.5">
-                          {stat.label}
-                        </span>
+                      </h1>
+
+                      {/* Concise Subtitle */}
+                      <p className="text-[11px] sm:text-xs text-[var(--theme-text)] opacity-85 leading-relaxed font-light mb-2.5 max-w-lg mx-auto">
+                        A disciplined, design-led advisory firm curating Mumbai&apos;s premier developer sole selling mandates, high-value commercial leasing, and connected PropTech ecosystems.
+                      </p>
+
+                      {/* Proof-Point Stat Chips - Ultra Compact Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full max-w-lg mb-2.5">
+                        {[
+                          { value: "₹2,500+ Cr", label: "Mandates Pipeline", icon: TrendingUp },
+                          { value: "20+ Years", label: "MMR Pedigree", icon: Building2 },
+                          { value: "Cat A & B", label: "Sole Selling Mandates", icon: ShieldCheck },
+                          { value: "PropTech", label: "Connected System", icon: Sparkles },
+                        ].map((stat, i) => {
+                          const Icon = stat.icon;
+                          return (
+                            <MagneticPhysicsWrapper key={i} strength={0.12} className="w-full">
+                              <div className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md border border-[var(--theme-border)] bg-[var(--theme-surface-glass)]/90 backdrop-blur-md shadow-xs group hover:border-[var(--theme-accent)] hover:shadow-xs transition-all duration-200">
+                                <div className="flex items-center gap-1 mb-0.5">
+                                  <Icon className="w-2.5 h-2.5 text-[var(--theme-accent)] opacity-80 group-hover:scale-110 transition-transform shrink-0" />
+                                  <span className="font-serif text-xs sm:text-sm font-semibold text-[var(--theme-text)] whitespace-nowrap">
+                                    {stat.value}
+                                  </span>
+                                </div>
+                                <span className="text-[7.5px] sm:text-[8px] tracking-wider uppercase text-[var(--theme-text-muted)] font-medium text-center">
+                                  {stat.label}
+                                </span>
+                              </div>
+                            </MagneticPhysicsWrapper>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Dual Interactive CTAs */}
-                <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-                  <button
-                    onClick={() => scrollToStage(STAGES[1])}
-                    className="inline-flex items-center gap-2.5 px-8 py-4 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.2em] uppercase rounded-sm hover:brightness-110 transition-all duration-300 shadow-xl shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5"
-                  >
-                    <span>Explore Architectural Vision</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                      {/* Dual Interactive Magnetic CTAs */}
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2 w-full sm:w-auto mb-2.5">
+                        <MagneticPhysicsWrapper strength={0.2} className="w-full sm:w-auto">
+                          <button
+                            onClick={() => scrollToStage(STAGES[1])}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-[10px] sm:text-[11px] font-bold tracking-[0.16em] uppercase rounded-sm hover:brightness-110 transition-all duration-200 shadow-md shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5 cursor-pointer"
+                          >
+                            <span>Explore Architectural Journey</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </MagneticPhysicsWrapper>
 
-                  <Link
-                    href="#contact"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] text-xs font-semibold tracking-[0.2em] uppercase rounded-sm transition-all duration-300 backdrop-blur-md hover:-translate-y-0.5"
-                  >
-                    <span>Developer Mandate Inquiry</span>
-                  </Link>
-                </div>
+                        <MagneticPhysicsWrapper strength={0.2} className="w-full sm:w-auto">
+                          <Link
+                            href="#contact"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] text-[10px] sm:text-[11px] font-semibold tracking-[0.16em] uppercase rounded-sm transition-all duration-200 backdrop-blur-md hover:-translate-y-0.5 shadow-xs"
+                          >
+                            <span>Developer Mandates Inquiry</span>
+                          </Link>
+                        </MagneticPhysicsWrapper>
+                      </div>
 
-                {/* Quick Chapter Jump Bar */}
-                <div className="hidden md:flex items-center gap-2 pt-2 border-t border-[var(--theme-border)]/60">
-                  <span className="text-[10px] uppercase tracking-widest text-[var(--theme-text-muted)] mr-2 font-medium">
-                    Chapters:
-                  </span>
-                  {STAGES.map((stage) => (
-                    <button
-                      key={stage.id}
-                      onClick={() => scrollToStage(stage)}
-                      className={`text-[10px] tracking-[0.14em] uppercase font-semibold px-2.5 py-1 rounded transition-all duration-200 ${
-                        activeStage.id === stage.id
-                          ? "bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c]"
-                          : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-surface-glass)]"
-                      }`}
-                    >
-                      {stage.phaseNumber} {stage.phaseTitle.split(" ")[0]}
-                    </button>
-                  ))}
-                </div>
+                      {/* Quick Chapter Navigation Bar & Scroll Prompt */}
+                      <div className="flex items-center justify-between gap-3 w-full pt-1.5 border-t border-[var(--theme-border)]/40 text-[9px]">
+                        <div className="hidden sm:flex items-center gap-1.5">
+                          <span className="uppercase tracking-widest text-[var(--theme-text-muted)] mr-1 font-medium text-[8.5px]">
+                            Chapters:
+                          </span>
+                          {STAGES.map((stage) => (
+                            <button
+                              key={stage.id}
+                              onClick={() => scrollToStage(stage)}
+                              className={`text-[8.5px] tracking-[0.12em] uppercase font-semibold px-2 py-0.5 rounded transition-all duration-200 cursor-pointer ${
+                                activeStage.id === stage.id
+                                  ? "bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c]"
+                                  : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-surface-glass)]"
+                              }`}
+                            >
+                              {stage.phaseNumber}
+                            </button>
+                          ))}
+                        </div>
 
-                {/* Animated Scroll Prompt Indicator */}
-                <motion.div
-                  animate={{ y: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                  className="mt-8 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 cursor-pointer"
-                  onClick={() => scrollToStage(STAGES[1])}
-                >
-                  <span className="text-[10px] tracking-[0.25em] uppercase text-[var(--theme-text-muted)] font-medium">
-                    Scroll to witness reveal
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-[var(--theme-accent)]" />
-                </motion.div>
+                        <motion.div
+                          animate={{ y: [0, 3, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                          className="flex items-center gap-1.5 opacity-75 hover:opacity-100 cursor-pointer text-[var(--theme-text-muted)] hover:text-[var(--theme-accent)] transition-colors mx-auto sm:mx-0"
+                          onClick={() => scrollToStage(STAGES[1])}
+                        >
+                          <span className="text-[8.5px] sm:text-[9px] tracking-[0.2em] uppercase font-medium">
+                            Scroll to navigate
+                          </span>
+                          <ChevronDown className="w-3 h-3 text-[var(--theme-accent)]" />
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </WobblyCard>
               </motion.div>
             ) : (
               /* =========================================================================
-                 STAGES 02 THROUGH 06 NARRATIVE ARCHITECTURAL CARDS
+                 STAGES 02 THROUGH 06 NARRATIVE ARCHITECTURAL CARDS WITH WOBBLY PHYSICS
                  ========================================================================= */
               <motion.div
                 key={activeStage.id}
-                initial={{ opacity: 0, y: 35, scale: 0.98 }}
+                initial={{ opacity: 0, y: 25, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -25, scale: 0.98 }}
-                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-2xl pointer-events-auto ${
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className={`w-full max-w-xl pointer-events-auto ${
                   activeStage.alignment === "left"
                     ? "mr-auto ml-0 text-left"
                     : activeStage.alignment === "right"
@@ -609,72 +702,78 @@ export default function ArchitecturalCanvasSequence() {
                     : "mx-auto text-center"
                 }`}
               >
-                <div className="p-8 sm:p-12 rounded-sm bg-[var(--theme-surface-glass)] backdrop-blur-2xl border border-[var(--theme-border)] shadow-[var(--theme-shadow)] relative group">
-                  {/* Accent top rule */}
-                  <div className="absolute top-0 left-0 w-12 h-[2px] bg-[var(--theme-accent)]" />
+                <WobblyCard wobbleIntensity={8} className="w-full">
+                  <div className="p-4 sm:p-7 md:p-8 rounded-2xl bg-[var(--theme-surface-glass)]/92 backdrop-blur-2xl border border-[var(--theme-border)] shadow-[var(--theme-shadow)] relative group hover:border-[var(--theme-accent)]/50 transition-all duration-300">
+                    {/* Accent top rule */}
+                    <div className="absolute top-0 left-0 w-14 h-[2px] bg-[var(--theme-accent)]" />
 
-                  {/* Badge */}
-                  <div className="inline-flex items-center gap-2 mb-4">
-                    <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)]" />
-                    <span className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[var(--theme-accent)]">
-                      AVODAH &amp; KHEN LLP • STAGE {activeStage.phaseNumber}
-                    </span>
-                  </div>
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 mb-2 sm:mb-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--theme-accent)]" />
+                      <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.2em] uppercase text-[var(--theme-accent)]">
+                        AVODAH &amp; KHEN LLP • STAGE {activeStage.phaseNumber}
+                      </span>
+                    </div>
 
-                  {/* Title */}
-                  <h2 className="font-serif text-4xl sm:text-6xl font-normal text-[var(--theme-text)] leading-[1.08] mb-5 tracking-tight whitespace-pre-line">
-                    {activeStage.title}
-                  </h2>
+                    {/* Title */}
+                    <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-normal text-[var(--theme-text)] leading-[1.12] mb-3 tracking-tight whitespace-pre-line">
+                      {activeStage.title}
+                    </h2>
 
-                  {/* Subtitle */}
-                  <p className="text-sm sm:text-base text-[var(--theme-text)] opacity-85 leading-relaxed font-light mb-8 max-w-xl">
-                    {activeStage.subtitle}
-                  </p>
+                    {/* Subtitle */}
+                    <p className="text-xs sm:text-sm text-[var(--theme-text)] opacity-85 leading-relaxed font-light mb-4 sm:mb-5 max-w-lg">
+                      {activeStage.subtitle}
+                    </p>
 
-                  {/* Technical Tags */}
-                  {activeStage.tags && activeStage.tags.length > 0 && (
+                    {/* Technical Tags */}
+                    {activeStage.tags && activeStage.tags.length > 0 && (
+                      <div
+                        className={`flex flex-wrap gap-1.5 mb-4 sm:mb-5 ${
+                          activeStage.alignment === "center" ? "justify-center" : ""
+                        }`}
+                      >
+                        {activeStage.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.14em] uppercase px-2.5 py-1 bg-[var(--theme-tag-bg)] border border-[var(--theme-tag-border)] rounded-sm text-[var(--theme-accent)]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Action Buttons with Magnetic Physics */}
                     <div
-                      className={`flex flex-wrap gap-2 mb-8 ${
+                      className={`flex flex-wrap items-center gap-2.5 sm:gap-3 ${
                         activeStage.alignment === "center" ? "justify-center" : ""
                       }`}
                     >
-                      {activeStage.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] font-semibold tracking-[0.16em] uppercase px-3 py-1.5 bg-[var(--theme-tag-bg)] border border-[var(--theme-tag-border)] rounded-sm text-[var(--theme-accent)]"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {activeStage.primaryCtaText && (
+                        <MagneticPhysicsWrapper strength={0.2}>
+                          <Link
+                            href={activeStage.primaryCtaHref || "#contact"}
+                            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-[10px] sm:text-[11px] font-bold tracking-[0.16em] uppercase rounded-sm hover:brightness-110 transition-all duration-200 shadow-md shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5"
+                          >
+                            <span>{activeStage.primaryCtaText}</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </MagneticPhysicsWrapper>
+                      )}
+
+                      {activeStage.secondaryCtaText && (
+                        <MagneticPhysicsWrapper strength={0.2}>
+                          <Link
+                            href={activeStage.secondaryCtaHref || "#services"}
+                            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-transparent border border-[var(--theme-border)] text-[var(--theme-text)] text-[10px] sm:text-[11px] font-medium tracking-[0.16em] uppercase rounded-sm hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] transition-all duration-200 hover:-translate-y-0.5"
+                          >
+                            <span>{activeStage.secondaryCtaText}</span>
+                          </Link>
+                        </MagneticPhysicsWrapper>
+                      )}
                     </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div
-                    className={`flex flex-wrap items-center gap-4 ${
-                      activeStage.alignment === "center" ? "justify-center" : ""
-                    }`}
-                  >
-                    {activeStage.primaryCtaText && (
-                      <Link
-                        href={activeStage.primaryCtaHref || "#contact"}
-                        className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.18em] uppercase rounded-sm hover:brightness-110 transition-all duration-300 shadow-xl shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5"
-                      >
-                        <span>{activeStage.primaryCtaText}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    )}
-
-                    {activeStage.secondaryCtaText && (
-                      <Link
-                        href={activeStage.secondaryCtaHref || "#services"}
-                        className="inline-flex items-center gap-2 px-7 py-3.5 bg-transparent border border-[var(--theme-border)] text-[var(--theme-text)] text-xs font-medium tracking-[0.18em] uppercase rounded-sm hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] transition-all duration-300 hover:-translate-y-0.5"
-                      >
-                        <span>{activeStage.secondaryCtaText}</span>
-                      </Link>
-                    )}
                   </div>
-                </div>
+                </WobblyCard>
               </motion.div>
             )}
           </AnimatePresence>

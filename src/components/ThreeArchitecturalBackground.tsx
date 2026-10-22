@@ -23,7 +23,9 @@ export default function ThreeArchitecturalBackground() {
     sceneRef.current = scene;
 
     const isLight = theme === "light";
-    scene.fog = new THREE.FogExp2(isLight ? 0xf6f4ee : 0x0c0d0c, 0.025);
+    if (!isLight) {
+      scene.fog = new THREE.FogExp2(0x0c0d0c, 0.025);
+    }
 
     const camera = new THREE.PerspectiveCamera(
       55,

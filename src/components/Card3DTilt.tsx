@@ -21,18 +21,15 @@ export default function Card3DTilt({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  // Springs for smooth physics
-  const springConfig = { damping: 20, stiffness: 180 };
+  // Springs for responsive wobbly physics
+  const springConfig = { damping: 13, stiffness: 300, mass: 0.65 };
   const smoothX = useSpring(x, springConfig);
   const smoothY = useSpring(y, springConfig);
 
-  // Calculate 3D rotations
+  // Calculate 3D rotations & wobbly sway
   const rotateX = useTransform(smoothY, [-0.5, 0.5], [intensity, -intensity]);
   const rotateY = useTransform(smoothX, [-0.5, 0.5], [-intensity, intensity]);
-
-  // Glare position
-  const glareX = useTransform(smoothX, [-0.5, 0.5], ["0%", "100%"]);
-  const glareY = useTransform(smoothY, [-0.5, 0.5], ["0%", "100%"]);
+  const rotateZ = useTransform(smoothX, [-0.5, 0.5], [-2, 2]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -69,12 +66,13 @@ export default function Card3DTilt({
         style={{
           rotateX,
           rotateY,
+          rotateZ,
           transformStyle: "preserve-3d",
         }}
         animate={{
-          scale: isHovered ? 1.025 : 1,
+          scale: isHovered ? 1.02 : 1,
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: "spring", stiffness: 350, damping: 15 }}
         className="relative w-full h-full rounded-sm overflow-hidden"
       >
         {children}
@@ -83,8 +81,8 @@ export default function Card3DTilt({
         <motion.div
           className="absolute inset-0 pointer-events-none rounded-sm transition-opacity duration-300"
           style={{
-            opacity: isHovered ? 0.35 : 0,
-            background: `radial-gradient(circle 350px at ${glareX.get()} ${glareY.get()}, rgba(255,255,255,0.18), transparent 70%)`,
+            opacity: isHovered ? 0.25 : 0,
+            background: "radial-gradient(circle 350px at center, rgba(255,255,255,0.15), transparent 70%)",
           }}
         />
       </motion.div>

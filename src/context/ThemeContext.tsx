@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
 
@@ -16,35 +16,48 @@ const ThemeContext = createContext<ThemeContextType>({
   setTheme: () => {},
 });
 
+const themeListeners = new Set<() => void>();
+
+function subscribeTheme(callback: () => void) {
+  themeListeners.add(callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    themeListeners.delete(callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getThemeSnapshot(): Theme {
+  try {
+    const saved = localStorage.getItem("ak_theme");
+    return saved === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
+function getServerSnapshot(): Theme {
+  return "dark";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const storeTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerSnapshot);
+  const [localTheme, setLocalTheme] = useState<Theme | null>(null);
+
+  const theme = localTheme ?? storeTheme;
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ak_theme") as Theme | null;
-      if (saved === "light" || saved === "dark") {
-        setThemeState(saved);
-        document.documentElement.classList.remove("light", "dark");
-        document.documentElement.classList.add(saved);
-        document.documentElement.setAttribute("data-theme", saved);
-      } else {
-        document.documentElement.classList.remove("light", "dark");
-        document.documentElement.classList.add("dark");
-        document.documentElement.setAttribute("data-theme", "dark");
-      }
-    } catch {
-      // Local storage unavailable or SSR
-    }
-  }, []);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const setTheme = (nextTheme: Theme) => {
-    setThemeState(nextTheme);
+    setLocalTheme(nextTheme);
     try {
       localStorage.setItem("ak_theme", nextTheme);
     } catch {}
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(nextTheme);
-    document.documentElement.setAttribute("data-theme", nextTheme);
+    themeListeners.forEach((listener) => listener());
   };
 
   const toggleTheme = () => {

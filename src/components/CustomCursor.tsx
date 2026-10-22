@@ -1,11 +1,21 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
+const emptySubscribe = () => () => {};
+
 export default function CustomCursor() {
-  const [mounted, setMounted] = useState(false);
-  const [isPointerFine, setIsPointerFine] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const isPointerFine = useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia("(pointer: fine)");
+      mq.addEventListener("change", onStoreChange);
+      return () => mq.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(pointer: fine)").matches,
+    () => false
+  );
   const [isHovered, setIsHovered] = useState(false);
   const { theme } = useTheme();
 
@@ -15,10 +25,6 @@ export default function CustomCursor() {
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
-    const mediaQuery = window.matchMedia("(pointer: fine)");
-    setIsPointerFine(mediaQuery.matches);
-
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;

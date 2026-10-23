@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "192.168.137.1",
     "192.168.137.1:3000",
   ],
+  serverExternalPackages: ["@prisma/client", "pg", "@prisma/adapter-pg"],
   turbopack: {
     rules: {
       "*.css": {

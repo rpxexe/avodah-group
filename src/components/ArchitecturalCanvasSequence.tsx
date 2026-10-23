@@ -576,26 +576,22 @@ export default function ArchitecturalCanvasSequence() {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--theme-accent)]" />
                           </span>
                           <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.16em] uppercase text-[var(--theme-accent)]">
-                            AVODAH &amp; KHEN LLP • MUMBAI MMR
-                          </span>
-                          <span className="text-[var(--theme-border)] opacity-60">•</span>
-                          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.14em] uppercase text-[var(--theme-text-muted)] font-medium">
-                            SOLE SELLING MANDATES
+                            REAL ESTATE. REIMAGINED WITH PROPTECH
                           </span>
                         </div>
                       </MagneticPhysicsWrapper>
 
-                      {/* Compact Editorial Headline */}
+                      {/* Editorial Headline */}
                       <h1 className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-[34px] font-normal text-[var(--theme-text)] leading-[1.14] tracking-tight mb-2 max-w-xl">
-                        Where Vision Meets{" "}
+                        Technology-driven solutions.{" "}
                         <span className="italic font-light text-[var(--theme-accent)]">
-                          Structural Reality.
+                          Transforming the way real estate moves.
                         </span>
                       </h1>
 
                       {/* Concise Subtitle */}
                       <p className="text-[11px] sm:text-xs text-[var(--theme-text)] opacity-85 leading-relaxed font-light mb-2.5 max-w-lg mx-auto">
-                        A disciplined, design-led advisory firm curating Mumbai&apos;s premier developer sole selling mandates, high-value commercial leasing, and connected PropTech ecosystems.
+                        We combine real estate expertise with technology to make buying, selling and investing in property simpler, smarter and more transparent. Where Vision Meets Structural Reality.
                       </p>
 
                       {/* Proof-Point Stat Chips - Ultra Compact Grid */}
@@ -628,21 +624,21 @@ export default function ArchitecturalCanvasSequence() {
                       {/* Dual Interactive Magnetic CTAs */}
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 w-full sm:w-auto mb-2.5">
                         <MagneticPhysicsWrapper strength={0.2} className="w-full sm:w-auto">
-                          <button
-                            onClick={() => scrollToStage(STAGES[1])}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-[10px] sm:text-[11px] font-bold tracking-[0.16em] uppercase rounded-sm hover:brightness-110 transition-all duration-200 shadow-md shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5 cursor-pointer"
+                          <Link
+                            href="/contact"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-[10px] sm:text-[11px] font-bold tracking-[0.16em] uppercase rounded-sm hover:brightness-110 transition-all duration-200 shadow-md shadow-[var(--theme-accent)]/20 hover:-translate-y-0.5 cursor-pointer"
                           >
-                            <span>Explore Architectural Journey</span>
+                            <span>Talk to our team</span>
                             <ArrowRight className="w-3 h-3" />
-                          </button>
+                          </Link>
                         </MagneticPhysicsWrapper>
 
                         <MagneticPhysicsWrapper strength={0.2} className="w-full sm:w-auto">
                           <Link
-                            href="#contact"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] text-[10px] sm:text-[11px] font-semibold tracking-[0.16em] uppercase rounded-sm transition-all duration-200 backdrop-blur-md hover:-translate-y-0.5 shadow-xs"
+                            href="/proptech"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] text-[10px] sm:text-[11px] font-semibold tracking-[0.16em] uppercase rounded-sm transition-all duration-200 backdrop-blur-md hover:-translate-y-0.5 shadow-xs"
                           >
-                            <span>Developer Mandates Inquiry</span>
+                            <span>Explore PropTech</span>
                           </Link>
                         </MagneticPhysicsWrapper>
                       </div>

@@ -6,18 +6,60 @@ import { Mail, MapPin, Globe, ArrowRight, CheckCircle2 } from "lucide-react";
 import Card3DTilt from "./Card3DTilt";
 
 export default function ContactSection() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    service: "",
+    message: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedRef, setSubmittedRef] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setFormError(null);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const payload = {
+      fullName: formData.fullName.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      service: formData.service || "Sole Selling Mandate",
+      message: formData.message.trim(),
+      source: "homepage",
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to submit request.");
+      }
+
       setIsSubmitted(true);
-      (e.target as HTMLFormElement).reset();
-    }, 700);
+      setSubmittedRef(data.referenceCode);
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        service: "",
+        message: "",
+      });
+    } catch (err: unknown) {
+      console.error("[CONTACT_SUBMIT_ERROR]", err);
+      setFormError(err instanceof Error ? err.message : "Submission failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -37,16 +79,16 @@ export default function ContactSection() {
               <div className="inline-flex items-center gap-2 mb-4">
                 <span className="w-5 h-[1.5px] bg-[var(--theme-accent)]" />
                 <span className="text-xs uppercase tracking-[0.25em] text-[var(--theme-accent)] font-semibold">
-                  Engage Our Team
+                  LET’S CONNECT
                 </span>
               </div>
 
               <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[var(--theme-text)] leading-tight mb-6 tracking-tight">
-                Have a property opportunity or mandate requirement?
+                Let’s build the future of real estate.
               </h2>
 
               <p className="text-sm sm:text-base text-[var(--theme-text-muted)] leading-relaxed font-light mb-10">
-                Partner with AVODAH &amp; KHEN to bring structure, accountability, and strategic direction to your project sales and real estate investments.
+                Partner with us for property mandates, technology, lead generation, CRM, AI and sales execution.
               </p>
 
               {/* Direct Channels */}
@@ -134,7 +176,10 @@ export default function ContactSection() {
                       <input
                         type="text"
                         id="fullName"
+                        name="fullName"
                         required
+                        value={formData.fullName}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
                         placeholder="e.g. Ananya Mehta"
                         className="w-full px-4 py-3 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-sm text-[var(--theme-text)] focus:border-[var(--theme-accent)] outline-none transition-all placeholder:text-[var(--theme-text-muted)] opacity-90"
                       />
@@ -150,7 +195,10 @@ export default function ContactSection() {
                       <input
                         type="email"
                         id="email"
+                        name="email"
                         required
+                        value={formData.email}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                         placeholder="name@company.com"
                         className="w-full px-4 py-3 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-sm text-[var(--theme-text)] focus:border-[var(--theme-accent)] outline-none transition-all placeholder:text-[var(--theme-text-muted)] opacity-90"
                       />
@@ -168,7 +216,10 @@ export default function ContactSection() {
                       <input
                         type="tel"
                         id="phone"
+                        name="phone"
                         required
+                        value={formData.phone}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                         placeholder="+91 98765 43210"
                         className="w-full px-4 py-3 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-sm text-[var(--theme-text)] focus:border-[var(--theme-accent)] outline-none transition-all placeholder:text-[var(--theme-text-muted)] opacity-90"
                       />
@@ -183,8 +234,10 @@ export default function ContactSection() {
                       </label>
                       <select
                         id="service"
+                        name="service"
                         required
-                        defaultValue=""
+                        value={formData.service}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, service: e.target.value }))}
                         className="w-full px-4 py-3 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-sm text-[var(--theme-text)] focus:border-[var(--theme-accent)] outline-none transition-all"
                       >
                         <option value="" disabled>
@@ -209,29 +262,46 @@ export default function ContactSection() {
                     </label>
                     <textarea
                       id="message"
+                      name="message"
                       rows={4}
+                      value={formData.message}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
                       placeholder="Tell us a little about your project location, scale, or specific requirements..."
                       className="w-full px-4 py-3 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-sm text-[var(--theme-text)] focus:border-[var(--theme-accent)] outline-none transition-all resize-y placeholder:text-[var(--theme-text-muted)] opacity-90"
                     />
                   </div>
 
+                  {formError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-xs text-red-400">
+                      {formError}
+                    </div>
+                  )}
+
                   {!isSubmitted ? (
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-4 bg-[var(--theme-accent)] hover:brightness-110 text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-[0.2em] rounded-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-[var(--theme-accent)]/20 disabled:opacity-60"
+                      className="w-full py-4 bg-[var(--theme-accent)] hover:brightness-110 text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-[0.2em] rounded-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-[var(--theme-accent)]/20 disabled:opacity-60 cursor-pointer"
                     >
                       <span>
-                        {isSubmitting ? "Transmitting Information..." : "Submit Consultation Request"}
+                        {isSubmitting ? "Transmitting to Database..." : "Submit Consultation Request"}
                       </span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   ) : (
-                    <div className="p-4 bg-[var(--theme-accent)]/15 border border-[var(--theme-accent)]/40 rounded-sm flex items-center gap-3 text-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-[var(--theme-accent)]" />
-                      <span className="text-xs text-[var(--theme-text)] font-medium tracking-wider">
-                        Thank you. An advisory principal from Avodah &amp; Khen LLP will be in touch shortly.
-                      </span>
+                    <div className="p-5 bg-[var(--theme-accent)]/15 border border-[var(--theme-accent)]/40 rounded-sm flex flex-col gap-2 text-center items-center justify-center">
+                      <div className="flex items-center gap-2 text-[var(--theme-accent)] font-semibold text-xs tracking-wider uppercase">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Advisory Request Logged</span>
+                      </div>
+                      {submittedRef && (
+                        <span className="font-mono text-xs px-2.5 py-1 bg-[var(--theme-tag-bg)] border border-[var(--theme-border)] rounded text-[var(--theme-text)] font-semibold">
+                          Reference: #{submittedRef}
+                        </span>
+                      )}
+                      <p className="text-xs text-[var(--theme-text)] font-light leading-relaxed mt-1">
+                        Thank you. An advisory principal from Avodah &amp; Khen LLP will review your requirements and respond shortly.
+                      </p>
                     </div>
                   )}
                 </form>

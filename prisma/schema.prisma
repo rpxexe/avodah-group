@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model career_applications {
+  id              Int      @id @default(autoincrement())
+  first_name      String   @db.VarChar(100)
+  last_name       String   @db.VarChar(100)
+  contact_number  String   @db.VarChar(20)
+  email_address   String   @db.VarChar(255)
+  department      String   @db.VarChar(50)
+  job_applied_for String   @db.VarChar(150)
+  message         String
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  // Extended optional tracking fields
+  reference_code  String?  @db.VarChar(50)
+  experience      String?  @db.VarChar(50)
+  current_company String?  @db.VarChar(150)
+  linkedin_url    String?  @db.VarChar(255)
+  notice_period   String?  @db.VarChar(50)
+  status          String?  @default("SUBMITTED") @db.VarChar(50)
+
+  @@index([email_address])
+  @@index([department])
+}
+
+model contacts {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(150)
+  work_email     String   @db.VarChar(255)
+  city           String   @db.VarChar(150)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  // Extended optional advisory consultation fields
+  phone          String?  @db.VarChar(50)
+  service        String?  @db.VarChar(150)
+  organization   String?  @db.VarChar(150)
+  message        String?
+  reference_code String?  @db.VarChar(50)
+  source         String?  @default("homepage") @db.VarChar(50)
+  status         String?  @default("PENDING") @db.VarChar(50)
+
+  @@index([work_email])
+  @@index([service])
+}
+
+model waitlists {
+  id            Int      @id @default(autoincrement())
+  email         String   @db.VarChar(255)
+  platform_type String   @db.VarChar(50) // "proptech" | "fintech"
+  interest      String?  @db.VarChar(100)
+  status        String   @default("PENDING") @db.VarChar(50)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([email])
+  @@index([platform_type])
+}
+
+model newsletter_subscribers {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique @db.VarChar(255)
+  source     String   @default("footer") @db.VarChar(50)
+  active     Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([email])
+}

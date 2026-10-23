@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 
 interface SubMenuItem {
   name: string;
@@ -23,6 +23,10 @@ interface NavGroup {
 }
 
 const NAV_GROUPS: NavGroup[] = [
+  {
+    name: "Home",
+    href: "/",
+  },
   {
     name: "Services",
     dropdown: [
@@ -101,11 +105,10 @@ export default function Navigation() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
             ? "py-2.5 sm:py-3 bg-[var(--theme-nav-scrolled)]/95 backdrop-blur-2xl border-b border-[var(--theme-border)] shadow-xl"
             : "py-3 sm:py-3.5 bg-[var(--theme-surface-glass)]/90 backdrop-blur-xl border-b border-[var(--theme-border)]/70 shadow-sm"
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 flex items-center justify-between">
           {/* Logo & Brand Wordmark */}
@@ -116,11 +119,9 @@ export default function Navigation() {
                 alt="AVODAH & KHEN LLP Logo"
                 width={200}
                 height={70}
-                className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${
-                  scrolled ? "h-8 sm:h-9 md:h-10" : "h-10 sm:h-11 md:h-12"
-                } ${
-                  isLight ? "filter brightness-90 contrast-125" : "filter brightness-105"
-                }`}
+                className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${scrolled ? "h-8 sm:h-9 md:h-10" : "h-10 sm:h-11 md:h-12"
+                  } ${isLight ? "filter brightness-90 contrast-125" : "filter brightness-105"
+                  }`}
                 priority
               />
             </div>
@@ -145,9 +146,8 @@ export default function Navigation() {
                     >
                       <span>{item.name}</span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                          isOpen ? "rotate-180 text-[var(--theme-accent)]" : "opacity-70 group-hover:text-[var(--theme-accent)]"
-                        }`}
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? "rotate-180 text-[var(--theme-accent)]" : "opacity-70 group-hover:text-[var(--theme-accent)]"
+                          }`}
                       />
                     </button>
 
@@ -242,7 +242,7 @@ export default function Navigation() {
 
             {/* Direct Contact CTA - High-contrast solid accent */}
             <Link
-              href="/#contact"
+              href="/contact"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-sm bg-[var(--theme-accent)] hover:brightness-110 text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.16em] uppercase transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
             >
               <span>Get in Touch</span>
@@ -285,9 +285,8 @@ export default function Navigation() {
                       >
                         <span>{item.name}</span>
                         <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            isExpanded ? "rotate-180 text-[var(--theme-accent)]" : "opacity-60"
-                          }`}
+                          className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[var(--theme-accent)]" : "opacity-60"
+                            }`}
                         />
                       </button>
 
@@ -365,7 +364,7 @@ export default function Navigation() {
                 sales@avodahgroup.co • BKC, Mumbai
               </p>
               <Link
-                href="/#contact"
+                href="/contact"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-3 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-semibold text-xs uppercase tracking-widest text-center block rounded-sm shadow-lg hover:brightness-110 cursor-pointer"
               >

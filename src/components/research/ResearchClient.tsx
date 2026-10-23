@@ -26,6 +26,54 @@ export default function ResearchClient() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
   const [inquirySent, setInquirySent] = useState(false);
+  const [researchForm, setResearchForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    areaOfInterest: "Location Intelligence & Infrastructure",
+  });
+  const [isSubmittingResearch, setIsSubmittingResearch] = useState(false);
+  const [researchRef, setResearchRef] = useState<string | null>(null);
+  const [researchError, setResearchError] = useState<string | null>(null);
+
+  const handleResearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!researchForm.fullName.trim() || !researchForm.email.trim()) {
+      setResearchError("Please enter your full name and corporate email.");
+      return;
+    }
+    setIsSubmittingResearch(true);
+    setResearchError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: researchForm.fullName.trim(),
+          email: researchForm.email.trim(),
+          phone: researchForm.phone.trim() || "+91 99999 99999",
+          service: "Investment Advisory",
+          organization: "Market Research Desk",
+          message: `Inquiry for Market Intelligence: ${researchForm.areaOfInterest}`,
+          source: "research_intelligence",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.referenceCode) {
+        throw new Error(data.error || "Failed to record inquiry in the database.");
+      }
+
+      setResearchRef(data.referenceCode);
+      setInquirySent(true);
+    } catch (err: unknown) {
+      console.error("[RESEARCH_SUBMIT_ERROR]", err);
+      setResearchError(err instanceof Error ? err.message : "Failed to record request. Please try again.");
+    } finally {
+      setIsSubmittingResearch(false);
+    }
+  };
 
   // What We Analyse (6 Pillars)
   const analysisPillars = [
@@ -493,20 +541,23 @@ export default function ResearchClient() {
                     </p>
                   </div>
 
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setInquirySent(true);
-                    }}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={handleResearchSubmit} className="space-y-4">
+                    {researchError && (
+                      <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                        {researchError}
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
                         Full Name *
                       </label>
                       <input
                         type="text"
+                        name="fullName"
                         required
+                        value={researchForm.fullName}
+                        onChange={(e) => setResearchForm((prev) => ({ ...prev, fullName: e.target.value }))}
                         placeholder="Your Name"
                         className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
                       />
@@ -518,8 +569,25 @@ export default function ResearchClient() {
                       </label>
                       <input
                         type="email"
+                        name="email"
                         required
+                        value={researchForm.email}
+                        onChange={(e) => setResearchForm((prev) => ({ ...prev, email: e.target.value }))}
                         placeholder="name@company.com"
+                        className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                        Contact Phone
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={researchForm.phone}
+                        onChange={(e) => setResearchForm((prev) => ({ ...prev, phone: e.target.value }))}
+                        placeholder="+91 98765 43210"
                         className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
                       />
                     </div>
@@ -528,7 +596,12 @@ export default function ResearchClient() {
                       <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
                         Area of Interest
                       </label>
-                      <select className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]">
+                      <select
+                        name="areaOfInterest"
+                        value={researchForm.areaOfInterest}
+                        onChange={(e) => setResearchForm((prev) => ({ ...prev, areaOfInterest: e.target.value }))}
+                        className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                      >
                         <option>Location Intelligence &amp; Infrastructure</option>
                         <option>Market &amp; Price Trend Benchmarks</option>
                         <option>Project &amp; Competitor Intelligence</option>
@@ -541,16 +614,18 @@ export default function ResearchClient() {
                     <div className="pt-2 flex items-center justify-end gap-3">
                       <button
                         type="button"
+                        disabled={isSubmittingResearch}
                         onClick={() => setInquiryModalOpen(false)}
-                        className="px-4 py-2 text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] cursor-pointer"
+                        className="px-4 py-2 text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] cursor-pointer disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded hover:brightness-110 shadow-sm transition-all cursor-pointer"
+                        disabled={isSubmittingResearch}
+                        className="px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded hover:brightness-110 shadow-sm transition-all cursor-pointer disabled:opacity-50"
                       >
-                        Submit Request
+                        {isSubmittingResearch ? "Submitting..." : "Submit Request"}
                       </button>
                     </div>
                   </form>
@@ -559,8 +634,15 @@ export default function ResearchClient() {
                 <div className="text-center py-6">
                   <CheckCircle2 className="w-12 h-12 text-[var(--theme-accent)] mx-auto mb-3" />
                   <h3 className="font-serif text-2xl font-light text-[var(--theme-text)] mb-2">
-                    Request Received
+                    Request Recorded
                   </h3>
+                  {researchRef && (
+                    <div className="mb-3">
+                      <span className="font-mono text-xs px-3 py-1 bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] rounded text-[var(--theme-accent)] font-semibold">
+                        Reference: #{researchRef}
+                      </span>
+                    </div>
+                  )}
                   <p className="text-xs text-[var(--theme-text-muted)] mb-6">
                     Our market intelligence desk will share the requested briefing dossier within 24 hours.
                   </p>
@@ -568,6 +650,13 @@ export default function ResearchClient() {
                     onClick={() => {
                       setInquiryModalOpen(false);
                       setInquirySent(false);
+                      setResearchRef(null);
+                      setResearchForm({
+                        fullName: "",
+                        email: "",
+                        phone: "",
+                        areaOfInterest: "Location Intelligence & Infrastructure",
+                      });
                     }}
                     className="px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded cursor-pointer"
                   >

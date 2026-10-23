@@ -100,23 +100,66 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Direct Channels */}
+          {/* Direct Channels & Market Intelligence Newsletter */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs font-bold tracking-[0.22em] text-[var(--theme-accent)] uppercase mb-6">
+            <h4 className="text-xs font-bold tracking-[0.22em] text-[var(--theme-accent)] uppercase mb-4">
               Headquarters
             </h4>
-            <div className="space-y-3 text-xs text-[var(--theme-text-muted)] font-light">
+            <div className="space-y-2 text-xs text-[var(--theme-text-muted)] font-light mb-6">
               <p className="text-[var(--theme-text)] font-medium">sales@avodahgroup.co</p>
               <p>Mumbai, Maharashtra, India</p>
               <p>Mon — Fri: 09:30 - 18:30</p>
-              <div className="pt-2">
-                <Link
-                  href="#contact"
-                  className="inline-block px-4 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-[10px] uppercase tracking-widest rounded-sm hover:brightness-110 transition-colors shadow-sm"
-                >
-                  Inquire Now
-                </Link>
-              </div>
+            </div>
+
+            <h4 className="text-[10px] font-bold tracking-[0.2em] text-[var(--theme-accent)] uppercase mb-2">
+              Market Intelligence
+            </h4>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const emailInput = form.elements.namedItem("footerEmail") as HTMLInputElement;
+                if (!emailInput?.value) return;
+                try {
+                  const res = await fetch("/api/newsletter", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: emailInput.value.trim().toLowerCase(), source: "footer" }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok || !data.success) {
+                    throw new Error(data.error || "Subscription failed.");
+                  }
+                  emailInput.value = "";
+                  alert("Thank you for subscribing to Avodah & Khen market dispatches.");
+                } catch (err: unknown) {
+                  alert(err instanceof Error ? err.message : "Subscription failed. Please try again.");
+                }
+              }}
+              className="flex flex-col gap-2"
+            >
+              <input
+                type="email"
+                name="footerEmail"
+                required
+                placeholder="Corporate Email"
+                className="w-full px-3 py-1.5 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-sm text-xs text-[var(--theme-text)] placeholder:text-[var(--theme-text-muted)] focus:border-[var(--theme-accent)] outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full py-1.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-[10px] uppercase tracking-widest rounded-sm hover:brightness-110 transition-colors shadow-sm cursor-pointer"
+              >
+                Subscribe
+              </button>
+            </form>
+
+            <div className="pt-3">
+              <Link
+                href="/contact"
+                className="inline-block text-[11px] text-[var(--theme-accent)] hover:underline font-mono tracking-wider uppercase font-semibold"
+              >
+                Get in Touch &rarr;
+              </Link>
             </div>
           </div>
 

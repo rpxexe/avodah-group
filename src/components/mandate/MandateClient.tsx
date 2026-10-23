@@ -287,7 +287,7 @@ export default function MandateClient() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left: Strategic Boardroom Photo */}
             <div className="lg:col-span-5 relative rounded-3xl overflow-hidden border border-[var(--theme-border)] bg-[var(--theme-surface-glass)] shadow-xl sticky top-28">
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/40">
+              <div className="relative aspect-[3/4] sm:aspect-[4/5] lg:aspect-auto lg:h-full lg:min-h-[560px] w-full overflow-hidden bg-black/40">
                 <Image
                   src="/assets/mandate/mandate-strategy-boardroom.jpg"
                   alt="Avodah & Khen Strategic Sales Mandate Boardroom"
@@ -863,9 +863,7 @@ export default function MandateClient() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <Link
-                href="https://avodah-khen-website-frontend.vercel.app/contact"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/contact"
                 className="w-full sm:w-auto px-8 py-4 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded hover:brightness-110 shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Contact Us Now</span>

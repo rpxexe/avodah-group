@@ -58,31 +58,31 @@ export default function EcosystemSection() {
             <div className="inline-flex items-center gap-2 mb-4">
               <span className="w-5 h-[1.5px] bg-[var(--theme-accent)]" />
               <span className="text-xs uppercase tracking-[0.25em] text-[var(--theme-accent)] font-semibold">
-                Technology &amp; Future Vision
+                OUR CONNECTED ECOSYSTEM
               </span>
             </div>
 
             <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[var(--theme-text)] leading-tight mb-6 tracking-tight">
-              Something significant is underway at AVODAH &amp; KHEN.
+              One ecosystem, connected intelligence.
             </h2>
 
             {/* Stylized Quote Callout */}
             <div className="border-l-2 border-[var(--theme-accent)] pl-6 my-6">
               <p className="font-serif italic text-xl sm:text-2xl text-[var(--theme-text)] leading-snug">
-                &ldquo;Technology is reshaping the way real estate is discovered, analyzed, marketed and experienced.&rdquo;
+                &ldquo;From property discovery to conversion, our connected capabilities bring intelligence, relationships and execution together.&rdquo;
               </p>
             </div>
 
             <p className="text-sm sm:text-base text-[var(--theme-text-muted)] leading-relaxed font-light mb-8">
-              We are building innovative technology-led solutions for the future of real estate. We bring property discovery, market intelligence, customer relationships, and sales execution closer together through thoughtful technology and financial intelligence.
+              From property discovery to conversion, our connected capabilities bring intelligence, relationships and execution together. We combine real estate expertise with technology to make buying, selling and investing in property simpler, smarter and more transparent.
             </p>
 
             <div>
               <Link
-                href="#contact"
-                className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.18em] uppercase rounded-sm hover:brightness-110 transition-all duration-300 shadow-xl shadow-[var(--theme-accent)]/20"
+                href="/proptech"
+                className="inline-flex items-center gap-2 px-7 py-3.5 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.18em] uppercase rounded-sm hover:brightness-110 transition-all duration-300 shadow-xl shadow-[var(--theme-accent)]/20 cursor-pointer"
               >
-                <span>Register for PropTech Access</span>
+                <span>EXPLORE OUR ECOSYSTEM</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

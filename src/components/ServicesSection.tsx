@@ -1,165 +1,190 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import {
+  Compass,
+  Sparkles,
+  Building2,
+  Users,
+  TrendingUp,
+  Workflow,
+  ArrowRight,
+  ArrowUpRight,
+} from "lucide-react";
 import Card3DTilt from "./Card3DTilt";
 
-interface ServiceItem {
-  idx: string;
+interface CapabilityItem {
+  id: string;
+  tag: string;
+  action: string;
   title: string;
   desc: string;
-  image: string;
-  features: string[];
-  ctaText: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
 }
 
-const SERVICES: ServiceItem[] = [
+const CAPABILITIES: CapabilityItem[] = [
   {
-    idx: "[ 01 ]",
+    id: "01",
+    tag: "PROPERTY PORTAL",
+    action: "Discover",
+    title: "Property Portal",
+    desc: "Discover properties and explore real estate opportunities across high-velocity micro-markets.",
+    icon: Compass,
+    href: "/proptech",
+  },
+  {
+    id: "02",
+    tag: "AI + DATA",
+    action: "Understand",
+    title: "AI + Data Intelligence",
+    desc: "Turn property data into meaningful insights and informed decisions with algorithmic underwriting.",
+    icon: Sparkles,
+    href: "/research",
+  },
+  {
+    id: "03",
+    tag: "MANDATES",
+    action: "Represent",
     title: "Sole Selling Mandates",
-    desc: "Structured sales and brand mandates for developers across Mumbai. A technology and execution layer from initial launch to complete sell-through.",
-    image: "/assets/building.jpg",
-    features: [
-      "End-to-end sales team deployment",
-      "Brand positioning & launch strategy",
-      "Broker network orchestration",
-      "Targeted sell-through velocity",
-    ],
-    ctaText: "Mandate Enquiry",
+    desc: "Structure and represent real estate opportunities with sovereign pricing discipline and absorption speed.",
+    icon: Building2,
+    href: "/mandate",
   },
   {
-    idx: "[ 02 ]",
-    title: "Commercial Leasing",
-    desc: "Helping corporate occupiers and commercial property owners navigate leasing transactions with greater clarity, rigor, and economic efficiency.",
-    image: "/assets/hero_building.jpg",
-    features: [
-      "Occupier representation & search",
-      "Asset repositioning & marketing",
-      "Lease tenure & rate negotiation",
-      "Institutional space planning",
-    ],
-    ctaText: "Leasing Enquiry",
+    id: "04",
+    tag: "CRM",
+    action: "Manage",
+    title: "High-Velocity CRM",
+    desc: "Organize leads, relationships and customer journeys across institutional and retail channels.",
+    icon: Users,
+    href: "/proptech",
   },
   {
-    idx: "[ 03 ]",
-    title: "Investment Advisory",
-    desc: "Identifying and evaluating prime real estate investment opportunities aligned with long-term capital preservation and target return metrics.",
-    image: "/assets/building2.jpg",
-    features: [
-      "Asset underwriting & due diligence",
-      "Commercial yield assessment",
-      "Off-market acquisition sourcing",
-      "Structured exit planning",
-    ],
-    ctaText: "Capital Advisory",
+    id: "05",
+    tag: "SALES",
+    action: "Convert",
+    title: "Sales Execution",
+    desc: "Move qualified opportunities through the sales pipeline with on-ground conversion leadership.",
+    icon: TrendingUp,
+    href: "/mandate",
   },
   {
-    idx: "[ 04 ]",
-    title: "Portfolio Optimization",
-    desc: "Helping clients understand, restructure, and optimize their existing property holdings to maximize operational performance and capital value.",
-    image: "/assets/building3.jpg",
-    features: [
-      "Multi-asset portfolio audits",
-      "Rental yield enhancement",
-      "Repurposing & redevelopment review",
-      "Ongoing asset performance metrics",
-    ],
-    ctaText: "Portfolio Audit",
+    id: "06",
+    tag: "AUTOMATION",
+    action: "Optimize",
+    title: "Connected Automation",
+    desc: "Streamline repetitive tasks and connected workflows from lead qualification to transaction closing.",
+    icon: Workflow,
+    href: "/fintech",
   },
 ];
 
 export default function ServicesSection() {
   return (
-    <section id="services" className="py-24 sm:py-36 bg-[var(--theme-bg-secondary)] relative z-10 border-b border-[var(--theme-border)] transition-colors duration-300">
+    <section
+      id="services"
+      className="py-24 sm:py-36 bg-[var(--theme-bg-secondary)] relative z-10 border-b border-[var(--theme-border)] transition-colors duration-300"
+    >
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center max-w-3xl mx-auto mb-16 sm:mb-24"
+          className="text-center max-w-3xl mx-auto mb-16 sm:mb-20"
         >
-          <span className="text-xs uppercase tracking-[0.25em] text-[var(--theme-accent)] font-semibold block mb-3">
-            Institutional Capabilities
-          </span>
+          <div className="inline-flex items-center gap-2 mb-3">
+            <span className="w-5 h-[1.5px] bg-[var(--theme-accent)]" />
+            <span className="text-xs uppercase tracking-[0.25em] text-[var(--theme-accent)] font-semibold">
+              CORE CAPABILITIES
+            </span>
+          </div>
+
           <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[var(--theme-text)] leading-tight mb-5 tracking-tight">
             Expertise designed around your real estate objectives.
           </h2>
           <p className="text-sm sm:text-base text-[var(--theme-text-muted)] leading-relaxed font-light">
-            Our advisory services combine market intelligence, transaction expertise, and strategic analysis to help clients identify the right property opportunities.
+            Our connected capabilities combine market intelligence, transaction expertise, and modern technology to make buying, selling and investing in property simpler, smarter and more transparent.
           </p>
         </motion.div>
 
-        {/* 4 Cards Grid with 3D Tilt Physics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-          {SERVICES.map((service, idx) => (
-            <motion.div
-              key={service.idx}
-              initial={{ opacity: 0, y: 35 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
-              className="h-full"
-            >
-              <Card3DTilt intensity={14} className="h-full">
-                <div className="h-full flex flex-col justify-between p-7 rounded-sm bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] hover:border-[var(--theme-accent)] transition-all duration-300 relative group shadow-[var(--theme-card-shadow)]">
-                  {/* Top highlight bar */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[var(--theme-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* 6 Capabilities Grid with 3D Tilt Physics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16">
+          {CAPABILITIES.map((cap, idx) => {
+            const Icon = cap.icon;
+            return (
+              <motion.div
+                key={cap.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.08 }}
+                className="h-full"
+              >
+                <Card3DTilt intensity={12} className="h-full">
+                  <div className="h-full flex flex-col justify-between p-8 rounded-2xl bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] hover:border-[var(--theme-accent)] transition-all duration-300 relative group shadow-[var(--theme-card-shadow)] hover:shadow-xl hover:-translate-y-1">
+                    {/* Top subtle golden highlight */}
+                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[var(--theme-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-2xl" />
 
-                  {/* Thumbnail Image */}
-                  <div className="w-full h-44 relative rounded-sm overflow-hidden mb-6 border border-[var(--theme-border)]" style={{ position: "relative", width: "100%", height: "176px", minHeight: "176px" }}>
-                    <Image
-                      src={service.image}
-                      alt={service.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    <div>
+                      {/* Top Header Row with Icon and Action Tag */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="p-3 rounded-xl bg-[var(--theme-tag-bg)] border border-[var(--theme-tag-border)] text-[var(--theme-accent)] shadow-sm group-hover:scale-110 transition-transform duration-300">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider bg-[var(--theme-accent)]/10 text-[var(--theme-accent)] border border-[var(--theme-accent)]/20 font-semibold">
+                          {cap.action}
+                        </span>
+                      </div>
+
+                      {/* Tag & Title */}
+                      <span className="text-[10px] font-mono font-semibold tracking-widest text-[var(--theme-accent)] uppercase block mb-1.5">
+                        {cap.tag}
+                      </span>
+                      <h3 className="font-serif text-2xl text-[var(--theme-text)] font-normal leading-snug mb-3 group-hover:text-[var(--theme-accent)] transition-colors">
+                        {cap.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-xs sm:text-[13px] text-[var(--theme-text-muted)] leading-relaxed font-light mb-6">
+                        {cap.desc}
+                      </p>
+                    </div>
+
+                    {/* Bottom Action Link */}
+                    <div className="pt-4 border-t border-[var(--theme-border)]/60 flex items-center justify-between">
+                      <Link
+                        href={cap.href}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.14em] uppercase text-[var(--theme-accent)] hover:underline transition-all group/link"
+                      >
+                        <span>Learn More</span>
+                        <ArrowUpRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                      </Link>
+                      <span className="text-[10px] font-mono text-[var(--theme-text-muted)] opacity-60">
+                        {cap.id} / 06
+                      </span>
+                    </div>
                   </div>
-
-                  {/* Content */}
-                  <div className="flex-1 flex flex-col">
-                    <span className="text-[11px] font-mono font-semibold tracking-widest text-[var(--theme-accent)] block mb-2">
-                      {service.idx}
-                    </span>
-                    <h3 className="font-serif text-2xl text-[var(--theme-text)] font-normal leading-snug mb-3">
-                      {service.title}
-                    </h3>
-                    <p className="text-xs text-[var(--theme-text-muted)] leading-relaxed font-light mb-6">
-                      {service.desc}
-                    </p>
-
-                    {/* Features checklist */}
-                    <ul className="space-y-2 mb-8 pt-4 border-t border-[var(--theme-border)]">
-                      {service.features.map((feat, fIdx) => (
-                        <li key={fIdx} className="text-[11px] text-[var(--theme-text)] opacity-85 flex items-center gap-2">
-                          <span className="w-1 h-1 rounded-full bg-[var(--theme-accent)]" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Action Link */}
-                  <Link
-                    href="#contact"
-                    className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.16em] uppercase text-[var(--theme-accent)] hover:underline transition-colors group/link pt-2"
-                  >
-                    <span>{service.ctaText}</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                  </Link>
-                </div>
-              </Card3DTilt>
-            </motion.div>
-          ))}
+                </Card3DTilt>
+              </motion.div>
+            );
+          })}
         </div>
 
+        {/* Global CTA: Discover Our Capabilities */}
+        <div className="text-center">
+          <Link
+            href="/mandate"
+            className="inline-flex items-center gap-2.5 px-8 py-4 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] text-xs font-bold tracking-[0.2em] uppercase rounded-sm hover:brightness-110 transition-all duration-300 shadow-xl shadow-[var(--theme-accent)]/20 cursor-pointer"
+          >
+            <span>DISCOVER OUR CAPABILITIES</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/context/ThemeContext";
+import ScrollToTop from "@/components/ScrollToTop";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -50,9 +52,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${plusJakarta.variable} scroll-smooth`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${plusJakarta.variable} scroll-smooth`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className="font-sans antialiased selection:bg-[#A8875B] selection:text-white overflow-x-hidden min-h-screen">
         <ThemeProvider>
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
           {children}
         </ThemeProvider>
       </body>

@@ -240,6 +240,16 @@ export default function CareersClient() {
     noticePeriod: "Immediate / 15 Days",
     message: "",
   });
+  const [spontaneousData, setSpontaneousData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    areaOfMastery: "Sole Selling Mandates & Developer GTM",
+  });
+  const [isSpontaneousSubmitting, setIsSpontaneousSubmitting] = useState(false);
+  const [spontaneousSuccess, setSpontaneousSuccess] = useState<string | null>(null);
+  const [spontaneousError, setSpontaneousError] = useState<string | null>(null);
+
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -290,9 +300,9 @@ export default function CareersClient() {
     }
   };
 
-  const handleSubmitApplication = (e: React.FormEvent) => {
+  const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.email || !formData.phone) {
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.phone.trim()) {
       setFormError("Please fill in your name, email, and phone number.");
       return;
     }
@@ -300,12 +310,85 @@ export default function CareersClient() {
     setIsSubmitting(true);
     setFormError("");
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const res = await fetch("/api/careers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          department: activeRole?.department || "General Application",
+          roleTitle: activeRole?.title || "Spontaneous Application",
+          experience: formData.experience.trim(),
+          currentCompany: formData.currentOrg.trim(),
+          noticePeriod: formData.noticePeriod,
+          linkedinUrl: formData.linkedin.trim(),
+          message: formData.message.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.referenceCode) {
+        throw new Error(data.error || "Failed to submit application to the database. Please try again.");
+      }
+
+      setApplicationRef(data.referenceCode);
       setIsSubmitted(true);
-      const randomCode = Math.floor(1000 + Math.random() * 9000);
-      setApplicationRef(`AVK-2026-${randomCode}`);
-    }, 900);
+    } catch (err: unknown) {
+      console.error("[CAREER_SUBMIT_ERROR]", err);
+      setFormError(err instanceof Error ? err.message : "Failed to submit application. Please check your network and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSpontaneousSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!spontaneousData.fullName.trim() || !spontaneousData.email.trim()) {
+      setSpontaneousError("Please enter your name and email.");
+      return;
+    }
+
+    setIsSpontaneousSubmitting(true);
+    setSpontaneousError(null);
+
+    try {
+      const res = await fetch("/api/careers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: spontaneousData.fullName.trim(),
+          email: spontaneousData.email.trim(),
+          phone: spontaneousData.phone.trim() || "+91 99999 99999",
+          department: "VIP Talent Network",
+          roleTitle: spontaneousData.areaOfMastery,
+          message: `Open Executive Candidacy submitted for: ${spontaneousData.areaOfMastery}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to log candidacy.");
+      }
+
+      setSpontaneousSuccess(data.referenceCode || "REGISTERED");
+      setTimeout(() => {
+        setShowSpontaneousModal(false);
+        setSpontaneousSuccess(null);
+        setSpontaneousData({
+          fullName: "",
+          email: "",
+          phone: "",
+          areaOfMastery: "Sole Selling Mandates & Developer GTM",
+        });
+      }, 2500);
+    } catch (err: unknown) {
+      console.error("[SPONTANEOUS_SUBMIT_ERROR]", err);
+      setSpontaneousError(err instanceof Error ? err.message : "Failed to record candidacy. Please try again.");
+    } finally {
+      setIsSpontaneousSubmitting(false);
+    }
   };
 
   return (
@@ -1022,77 +1105,120 @@ export default function CareersClient() {
                 </p>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert("Thank you. Your dossier has been logged into the confidential partner registry.");
-                  setShowSpontaneousModal(false);
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Your Name"
-                    className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="email@example.com"
-                    className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
-                    Area of Mastery
-                  </label>
-                  <select className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]">
-                    <option>Sole Selling Mandates &amp; Developer GTM</option>
-                    <option>Commercial Office Leasing Advisory</option>
-                    <option>PropTech &amp; WebGL / Full-Stack Engineering</option>
-                    <option>Real Estate Capital Markets &amp; Debt Syndication</option>
-                    <option>Econometric Research &amp; Data Science</option>
-                    <option>3D Architectural Visualization &amp; Digital Twins</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
-                    Direct Email to Partners
-                  </label>
-                  <p className="text-xs text-[var(--theme-text)] font-mono p-2.5 rounded bg-[var(--theme-surface-glass)] border border-[var(--theme-border)]">
-                    careers@avodahgroup.co
+              {spontaneousSuccess ? (
+                <div className="p-6 text-center rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-accent)]/30">
+                  <div className="inline-flex p-3 rounded-full bg-[var(--theme-accent)]/15 text-[var(--theme-accent)] mb-3">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-serif text-xl text-[var(--theme-text)] mb-1">
+                    Candidacy Recorded
+                  </h4>
+                  <p className="text-xs text-[var(--theme-text-muted)] font-light mb-3">
+                    Your executive dossier is safely stored in our confidential registry.
                   </p>
+                  <span className="font-mono text-xs px-3 py-1 bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded text-[var(--theme-accent)] font-semibold">
+                    Ref: #{spontaneousSuccess}
+                  </span>
                 </div>
+              ) : (
+                <form onSubmit={handleSpontaneousSubmit} className="space-y-4">
+                  {spontaneousError && (
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                      {spontaneousError}
+                    </div>
+                  )}
 
-                <div className="pt-2 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowSpontaneousModal(false)}
-                    className="px-4 py-2 text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded hover:brightness-110 shadow-sm transition-all cursor-pointer"
-                  >
-                    Register Confidential Interest
-                  </button>
-                </div>
-              </form>
+                  <div>
+                    <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      required
+                      value={spontaneousData.fullName}
+                      onChange={(e) => setSpontaneousData((prev) => ({ ...prev, fullName: e.target.value }))}
+                      placeholder="Your Name"
+                      className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={spontaneousData.email}
+                      onChange={(e) => setSpontaneousData((prev) => ({ ...prev, email: e.target.value }))}
+                      placeholder="email@example.com"
+                      className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                      Mobile Phone
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={spontaneousData.phone}
+                      onChange={(e) => setSpontaneousData((prev) => ({ ...prev, phone: e.target.value }))}
+                      placeholder="+91 98765 43210"
+                      className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                      Area of Mastery
+                    </label>
+                    <select
+                      name="areaOfMastery"
+                      value={spontaneousData.areaOfMastery}
+                      onChange={(e) => setSpontaneousData((prev) => ({ ...prev, areaOfMastery: e.target.value }))}
+                      className="w-full px-3.5 py-2 text-xs rounded-lg bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-[var(--theme-text)] focus:outline-none focus:border-[var(--theme-accent)]"
+                    >
+                      <option>Sole Selling Mandates &amp; Developer GTM</option>
+                      <option>Commercial Office Leasing Advisory</option>
+                      <option>PropTech &amp; WebGL / Full-Stack Engineering</option>
+                      <option>Real Estate Capital Markets &amp; Debt Syndication</option>
+                      <option>Econometric Research &amp; Data Science</option>
+                      <option>3D Architectural Visualization &amp; Digital Twins</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono text-[var(--theme-text-muted)] uppercase mb-1">
+                      Direct Email to Partners
+                    </label>
+                    <p className="text-xs text-[var(--theme-text)] font-mono p-2.5 rounded bg-[var(--theme-surface-glass)] border border-[var(--theme-border)]">
+                      careers@avodahgroup.co
+                    </p>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      disabled={isSpontaneousSubmitting}
+                      onClick={() => setShowSpontaneousModal(false)}
+                      className="px-4 py-2 text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] cursor-pointer disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSpontaneousSubmitting}
+                      className="px-5 py-2 bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c] font-bold text-xs uppercase tracking-widest rounded hover:brightness-110 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isSpontaneousSubmitting ? "Registering..." : "Register Confidential Interest"}
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </div>
         )}

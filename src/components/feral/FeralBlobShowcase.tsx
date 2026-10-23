@@ -10,51 +10,130 @@ interface FeralBlobShowcaseProps {
   theme?: FeralTheme;
   interactiveName?: string;
   className?: string;
+  externalMood?: JellyBlobMood | null;
+  gazeTarget?: { x: number; y: number } | null;
+  celebrate?: number;
+  customSpeeches?: Partial<Record<JellyBlobMood, string>>;
 }
 
+// Ordered narrative sequence of moods matching the cloud speeches
+const MOOD_SEQUENCE: JellyBlobMood[] = [
+  "wave",       // Greeting
+  "curious",    // Discovery
+  "happy",      // Optimism
+  "hmm",        // Quantitative analysis
+  "surprised",  // Innovation impact
+  "love",       // Client satisfaction
+  "sideEye",    // Legacy disruption
+  "shy",        // Understated luxury
+  "sleepy",     // Background computation
+  "neutral",    // Composed executive presence
+];
+
 const PROPTECH_SPEECHES: Record<JellyBlobMood, string> = {
-  curious: "Scanning Bandra absorption...",
-  happy: "Zero lead leakage detected!",
-  wave: "Welcome to AVODAH PropTech!",
-  surprised: "Closed in under 12 mins!",
-  love: "Grade-A assets look prime.",
-  hmm: "Calibrating price curves...",
-  sideEye: "Unverified listing? Denied.",
-  password: "Mandate protocols locked.",
-  shy: "Exclusive mandates only...",
-  sleepy: "Telemetry idle. Ready.",
-  angry: "Don't spam our engine!",
-  sad: "Lead lost? Not on our watch.",
-  neutral: "PropTech Core: Online.",
+  curious: "Exploring the future of real estate...",
+  happy: "Smarter property decisions ahead!",
+  wave: "Something big is taking shape...",
+  surprised: "Real estate. Reimagined.",
+  love: "Built for better property journeys.",
+  hmm: "Mapping what's next in PropTech...",
+  sideEye: "Old-school real estate? Not for long.",
+  password: "Unlocking a smarter property ecosystem...",
+  shy: "A new way to discover real estate...",
+  sleepy: "The future is loading...",
+  angry: "Outdated property tech? Not anymore!",
+  sad: "Lost in property search? Those days are numbered.",
+  neutral: "AVODAH PropTech: Coming Soon.",
 };
 
 const FINTECH_SPEECHES: Record<JellyBlobMood, string> = {
-  curious: "Underwriting ₹1,200 Cr debt...",
-  happy: "Underwriting verified!",
-  wave: "Welcome to AVODAH FinTech!",
-  surprised: "Milestone escrow cleared!",
-  love: "Risk-adjusted yields prime.",
-  hmm: "Stress-testing cash flows...",
-  sideEye: "Scrutinizing debt ratios...",
-  password: "Escrow keys locked safe.",
-  shy: "Private family backing...",
-  sleepy: "Ledger batch amortized.",
-  angry: "Escrow condition missing!",
-  sad: "High rates? We structure it.",
-  neutral: "FinTech Engine active.",
+  curious: "Exploring smarter ways to invest...",
+  happy: "Big opportunities are taking shape!",
+  wave: "The future of real estate finance awaits!",
+  surprised: "Capital meets opportunity.",
+  love: "Built for smarter investments.",
+  hmm: "Connecting capital with potential...",
+  sideEye: "Traditional finance? Time for a rethink.",
+  password: "Securing the future of financial innovation...",
+  shy: "A new chapter in property finance...",
+  sleepy: "Something valuable is brewing...",
+  angry: "Inefficient capital flows? Not for long!",
+  sad: "Missed opportunities? Let's change that.",
+  neutral: "AVODAH FinTech: Coming Soon.",
 };
 
 export default function FeralBlobShowcase({
   theme = "proptech",
   className = "",
+  externalMood = null,
+  gazeTarget = null,
+  celebrate = 0,
+  customSpeeches,
 }: FeralBlobShowcaseProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mood, setMood] = useState<JellyBlobMood>("wave");
+  const [mounted, setMounted] = useState<boolean>(false);
+  const [moodIndex, setMoodIndex] = useState<number>(0);
+  const [mood, setMood] = useState<JellyBlobMood>(MOOD_SEQUENCE[0]);
   const [gaze, setGaze] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [sparkle, setSparkle] = useState(false);
+  const [sparkle, setSparkle] = useState<boolean>(false);
+  const [celebrateCount, setCelebrateCount] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isProptech = theme === "proptech";
-  const speeches = isProptech ? PROPTECH_SPEECHES : FINTECH_SPEECHES;
+  const baseSpeeches = isProptech ? PROPTECH_SPEECHES : FINTECH_SPEECHES;
+  const speeches = customSpeeches ? { ...baseSpeeches, ...customSpeeches } : baseSpeeches;
+
+  // Sync external mood when provided (e.g. from whitelist form interactions)
+  useEffect(() => {
+    if (externalMood) {
+      setMood(externalMood);
+      const foundIdx = MOOD_SEQUENCE.indexOf(externalMood);
+      if (foundIdx !== -1) {
+        setMoodIndex(foundIdx);
+      }
+    }
+  }, [externalMood]);
+
+  // Sync external gaze target when user focuses on inputs
+  useEffect(() => {
+    if (gazeTarget) {
+      setGaze(gazeTarget);
+    }
+  }, [gazeTarget]);
+
+  // Sync celebration bursts from external actions
+  useEffect(() => {
+    if (celebrate && celebrate > 0) {
+      setCelebrateCount((c) => c + 1);
+      setSparkle(true);
+      const timer = setTimeout(() => setSparkle(false), 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [celebrate]);
+
+  // Advance mood and speech cloud synchronously to the next narrative state
+  const advanceMood = useCallback(() => {
+    setMoodIndex((prev) => {
+      const nextIdx = (prev + 1) % MOOD_SEQUENCE.length;
+      setMood(MOOD_SEQUENCE[nextIdx]);
+      return nextIdx;
+    });
+  }, []);
+
+  // Automatic cyclical progression so the blob expression continually adapts to each cloud speech
+  useEffect(() => {
+    if (isPaused || externalMood) return;
+
+    const interval = setInterval(() => {
+      advanceMood();
+    }, 4200);
+
+    return () => clearInterval(interval);
+  }, [isPaused, externalMood, advanceMood]);
 
   // Custom luxury theme palette CSS variables for Feral-Blob
   const themeStyles = isProptech
@@ -101,7 +180,7 @@ export default function FeralBlobShowcase({
 
   // Mouse move tracker across container and viewport so the blob's eyes track the user
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
+    if (gazeTarget || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const relX = e.clientX - (rect.left + rect.width / 2);
     const relY = e.clientY - (rect.top + rect.height / 2);
@@ -114,6 +193,8 @@ export default function FeralBlobShowcase({
 
   // Global pointer tracking so the blob gazes across the screen at the user
   useEffect(() => {
+    if (gazeTarget) return;
+
     const handleGlobalPointer = (e: MouseEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
@@ -133,43 +214,72 @@ export default function FeralBlobShowcase({
 
     window.addEventListener("mousemove", handleGlobalPointer);
     return () => window.removeEventListener("mousemove", handleGlobalPointer);
-  }, []);
+  }, [gazeTarget]);
 
+  // Clicking the speech cloud changes the text and blob expression simultaneously
+  const handleCloudClick = () => {
+    setSparkle(true);
+    advanceMood();
+    setTimeout(() => setSparkle(false), 800);
+  };
+
+  // Poking the mascot plays physics squash, triggers eye sparkle, and updates expression to match speech
   const handlePoke = useCallback(() => {
     setSparkle(true);
-    setMood("surprised");
+    advanceMood();
     setTimeout(() => {
       setSparkle(false);
-      setMood("happy");
     }, 1200);
-    setTimeout(() => {
-      setMood("curious");
-    }, 4500);
-  }, []);
+  }, [advanceMood]);
 
+  // Overpoking expresses irritation then gracefully returns to the current speech mood
   const handleOverpoke = useCallback(() => {
     setMood("angry");
+    setCelebrateCount((c) => c + 1);
     setTimeout(() => {
       setMood("sideEye");
-    }, 2500);
+    }, 2000);
     setTimeout(() => {
-      setMood("curious");
-    }, 5000);
-  }, []);
+      setMood(MOOD_SEQUENCE[moodIndex]);
+    }, 4500);
+  }, [moodIndex]);
+
+  if (!mounted) {
+    return (
+      <div
+        style={themeStyles}
+        className={`relative flex flex-col items-center justify-center select-none ${className}`}
+      >
+        <div className="mb-2 max-w-[340px] w-full flex flex-col items-center justify-center min-h-[56px]">
+          <div className="px-4 py-2 rounded-2xl bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] text-xs font-sans text-[var(--theme-text)] opacity-70">
+            {speeches[mood]}
+          </div>
+        </div>
+        <div className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72" />
+        <div className="flex items-center justify-center gap-1.5 mt-3 pt-1 h-3" />
+      </div>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
       style={themeStyles}
       className={`relative flex flex-col items-center justify-center select-none ${className}`}
     >
-      {/* Speech Cloud */}
-      <div className="mb-2 max-w-[340px] w-full flex justify-center pointer-events-none">
+      {/* Interactive Speech Cloud — Clicking cycles the cloud text & blob expression */}
+      <div
+        onClick={handleCloudClick}
+        className="mb-2 max-w-[340px] w-full flex flex-col items-center justify-center cursor-pointer group"
+        title="Click to cycle speech & expression"
+      >
         <BlobSpeech
           mood={mood}
           messages={speeches}
-          className="text-xs font-sans tracking-tight text-[var(--theme-text)] shadow-lg"
+          className="text-xs font-sans tracking-tight text-[var(--theme-text)] shadow-lg transition-transform group-hover:scale-105"
         />
       </div>
 
@@ -177,16 +287,38 @@ export default function FeralBlobShowcase({
       <div
         onClick={handlePoke}
         className="relative w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 cursor-pointer transition-transform hover:scale-105 active:scale-95"
-        title="Poke the Feral UI blob!"
+        title="Poke the Feral UI blob to cycle expression!"
       >
         <JellyBlobMascot
           mood={mood}
           gaze={gaze}
           sparkle={sparkle}
+          celebrate={celebrateCount}
           onPoke={handlePoke}
           onOverpoke={handleOverpoke}
           className="w-full h-full drop-shadow-2xl"
         />
+      </div>
+
+      {/* Subtle Narrative Mood Navigation Dots */}
+      <div className="flex items-center justify-center gap-1.5 mt-3 pt-1">
+        {MOOD_SEQUENCE.map((m, idx) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => {
+              setMoodIndex(idx);
+              setMood(m);
+            }}
+            className={`transition-all duration-300 rounded-full cursor-pointer ${
+              mood === m
+                ? "w-4 h-1.5 bg-[var(--theme-accent)] shadow-sm"
+                : "w-1.5 h-1.5 bg-[var(--theme-border)] hover:bg-[var(--theme-text-muted)] opacity-50 hover:opacity-100"
+            }`}
+            title={`Expression: ${m} — "${speeches[m]}"`}
+            aria-label={`Switch expression to ${m}`}
+          />
+        ))}
       </div>
     </div>
   );

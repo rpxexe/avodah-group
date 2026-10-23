@@ -137,7 +137,7 @@ body {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  max-width: 260px !important;
+  max-width: 330px !important;
 }
 
 .blob-bubble-measure {

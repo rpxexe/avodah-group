@@ -58,6 +58,33 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              try {
+                var now = new Date();
+                var hour = now.getHours();
+                var theme = (hour >= 19 || hour < 7) ? 'dark' : 'light';
+                var raw = localStorage.getItem('ak_theme_override');
+                if (raw) {
+                  var parsed = JSON.parse(raw);
+                  if (parsed && typeof parsed.expiresAt === 'number' && now.getTime() < parsed.expiresAt) {
+                    if (parsed.theme === 'dark' || parsed.theme === 'light') {
+                      theme = parsed.theme;
+                    }
+                  } else {
+                    localStorage.removeItem('ak_theme_override');
+                  }
+                }
+                document.documentElement.classList.remove('light', 'dark');
+                document.documentElement.classList.add(theme);
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch(e) {}
+            })();`,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased selection:bg-[#A8875B] selection:text-white overflow-x-hidden min-h-screen">
         <ThemeProvider>
           <Suspense fallback={null}>

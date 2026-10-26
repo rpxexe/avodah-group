@@ -4,7 +4,8 @@ import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { ArrowUpRight, Menu, X, ChevronDown } from "lucide-react";
+import ThemeToggleSwitch from "@/components/ThemeToggleSwitch";
 import { useTheme } from "@/context/ThemeContext";
 
 const emptySubscribe = () => () => { };
@@ -45,6 +46,12 @@ const NAV_GROUPS: NavGroup[] = [
         name: "FinTech",
         href: "/fintech",
         description: "Algorithmic underwriting & capital intelligence",
+        badge: "Soon",
+      },
+      {
+        name: "AI Voice Bot",
+        href: "/ai-voice-bot",
+        description: "Autonomous real estate calling agent for lead qualification & site visits",
         badge: "Soon",
       },
       {
@@ -209,36 +216,8 @@ export default function Navigation() {
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              aria-label={isLight ? "Switch to Dark Mode" : "Switch to Light Mode"}
-              className="relative p-2.5 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface-elevated)] text-[var(--theme-text)] hover:border-[var(--theme-accent)] hover:text-[var(--theme-accent)] transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {isLight ? (
-                  <motion.div
-                    key="moon"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Moon className="w-4 h-4 text-[#8C6D41]" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="sun"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Sun className="w-4 h-4 text-[#D4AF37]" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
+            {/* Theme Toggle Switch */}
+            <ThemeToggleSwitch variant="header" />
 
             {/* Direct Contact CTA - High-contrast solid accent */}
             <Link
@@ -335,26 +314,16 @@ export default function Navigation() {
             </div>
 
             <div className="border-t border-[var(--theme-border)] pt-6 mt-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs uppercase tracking-widest text-[var(--theme-accent)] font-semibold">
-                  Theme Appearance
-                </span>
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--theme-border)] text-xs text-[var(--theme-text)] cursor-pointer"
-                >
-                  {isLight ? (
-                    <>
-                      <Moon className="w-3.5 h-3.5 text-[#8C6D41]" />
-                      <span>Light Active</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sun className="w-3.5 h-3.5 text-[#D4AF37]" />
-                      <span>Dark Active</span>
-                    </>
-                  )}
-                </button>
+              <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-surface-glass)] backdrop-blur-md mb-4">
+                <div className="flex flex-col">
+                  <span className="text-xs uppercase tracking-widest text-[var(--theme-accent)] font-semibold">
+                    Theme Appearance
+                  </span>
+                  <span className="text-[10px] text-[var(--theme-text-muted)] font-mono mt-0.5">
+                    7 AM–7 PM Light • 7 PM–7 AM Dark
+                  </span>
+                </div>
+                <ThemeToggleSwitch variant="drawer" showScheduleHint={false} />
               </div>
 
               <span className="text-xs uppercase tracking-widest text-[var(--theme-accent)] block mb-1 font-semibold">

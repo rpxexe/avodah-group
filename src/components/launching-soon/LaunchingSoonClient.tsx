@@ -7,7 +7,7 @@ import FeralBlobShowcase, { FeralTheme } from "@/components/feral/FeralBlobShowc
 import { type JellyBlobMood } from "feral-blob";
 
 interface LaunchingSoonClientProps {
-  type: "proptech" | "fintech";
+  type: "proptech" | "fintech" | "voicebot";
 }
 
 export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) {
@@ -20,8 +20,7 @@ export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const isProptech = type === "proptech";
-  const theme: FeralTheme = isProptech ? "proptech" : "fintech";
+  const theme: FeralTheme = type;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,23 +60,36 @@ export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) 
     }
   };
 
-  const content = isProptech
-    ? {
-        badge: "PROPTECH ECOSYSTEM // INITIALIZATION ALPHA",
-        title: "The Intelligent Real Estate Operating System Is Launching Soon.",
-        subtitle: "A connected platform for property discovery, automated developer mandates, high-velocity CRM, and spatial AI intelligence.",
-        targetDate: "TARGET RELEASE // Q1 2027",
-        primaryColor: "#C9A97C",
-        accentGlow: "rgba(201, 169, 124, 0.16)",
-      }
-    : {
-        badge: "FINTECH PROTOCOL // CLOSED INSTITUTIONAL BETA",
-        title: "Algorithmic Real Estate Capital & Underwriting Intelligence.",
-        subtitle: "Bridging institutional liquidity and Grade-A developer debt with machine-speed risk assessment, fractional syndication, and transparent escrow rails.",
-        targetDate: "TARGET RELEASE // Q1 2027",
-        primaryColor: "#38BDF8",
-        accentGlow: "rgba(56, 189, 248, 0.16)",
-      };
+  const content =
+    type === "voicebot"
+      ? {
+          badge: "VOICE AI PROTOCOL // AUTONOMOUS CALLING ALPHA",
+          title: "Autonomous Real Estate Voice Agents Are Launching Soon.",
+          subtitle:
+            "Instant lead qualification in under 10 seconds, multi-dialect fluency, and automated site visit scheduling—grounded exclusively in verified developer project data.",
+          targetDate: "TARGET RELEASE // Q1 2027",
+          primaryColor: "#10B981",
+          accentGlow: "rgba(16, 185, 129, 0.16)",
+        }
+      : type === "fintech"
+      ? {
+          badge: "FINTECH PROTOCOL // CLOSED INSTITUTIONAL BETA",
+          title: "Algorithmic Real Estate Capital & Underwriting Intelligence.",
+          subtitle:
+            "Bridging institutional liquidity and Grade-A developer debt with machine-speed risk assessment, fractional syndication, and transparent escrow rails.",
+          targetDate: "TARGET RELEASE // Q1 2027",
+          primaryColor: "#38BDF8",
+          accentGlow: "rgba(56, 189, 248, 0.16)",
+        }
+      : {
+          badge: "PROPTECH ECOSYSTEM // INITIALIZATION ALPHA",
+          title: "The Intelligent Real Estate Operating System Is Launching Soon.",
+          subtitle:
+            "A connected platform for property discovery, automated developer mandates, high-velocity CRM, and spatial AI intelligence.",
+          targetDate: "TARGET RELEASE // Q1 2027",
+          primaryColor: "#C9A97C",
+          accentGlow: "rgba(201, 169, 124, 0.16)",
+        };
 
   return (
     <div className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden flex flex-col justify-between pt-16 sm:pt-20 md:pt-22 pb-4 sm:pb-6 px-4 sm:px-8 lg:px-14 text-[var(--theme-text)] select-none">
@@ -96,8 +108,8 @@ export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) 
             <div className="inline-flex p-1 rounded-full bg-[var(--theme-surface-glass)] border border-[var(--theme-border)] shadow-sm backdrop-blur-xl mb-3 sm:mb-4">
               <Link
                 href="/proptech"
-                className={`px-3.5 sm:px-5 py-1.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold transition-all ${
-                  isProptech
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold transition-all ${
+                  type === "proptech"
                     ? "bg-[var(--theme-accent)] text-white dark:text-[#0C0D0C] shadow-sm"
                     : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]"
                 }`}
@@ -105,9 +117,19 @@ export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) 
                 PropTech Platform
               </Link>
               <Link
+                href="/ai-voice-bot"
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold transition-all ${
+                  type === "voicebot"
+                    ? "bg-[var(--theme-accent)] text-white dark:text-[#0C0D0C] shadow-sm"
+                    : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]"
+                }`}
+              >
+                AI Voice Bot
+              </Link>
+              <Link
                 href="/fintech"
-                className={`px-3.5 sm:px-5 py-1.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold transition-all ${
-                  !isProptech
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold transition-all ${
+                  type === "fintech"
                     ? "bg-[var(--theme-accent)] text-white dark:text-[#0C0D0C] shadow-sm"
                     : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)]"
                 }`}
@@ -221,9 +243,12 @@ export default function LaunchingSoonClient({ type }: LaunchingSoonClientProps) 
               customSpeeches={
                 submitted
                   ? {
-                      love: isProptech
-                        ? "Welcome to the AVODAH priority whitelist!"
-                        : "Priority allocation reserved! Welcome aboard.",
+                      love:
+                        type === "voicebot"
+                          ? "You're on the priority voice bot trial list!"
+                          : type === "fintech"
+                          ? "Priority allocation reserved! Welcome aboard."
+                          : "Welcome to the AVODAH priority whitelist!",
                     }
                   : undefined
               }

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function MandatePage() {
   return (
-    <main className="relative min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-300">
+    <main className="relative isolate min-h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-300">
       {/* Physics-based Custom Mouse Cursor */}
       <CustomCursor />
 

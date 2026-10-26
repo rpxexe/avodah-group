@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function FintechPage() {
   return (
-    <main className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-300">
+    <main className="relative isolate h-[100dvh] max-h-[100dvh] overflow-hidden bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-300">
       {/* Physics-based Custom Mouse Cursor */}
       <CustomCursor />
 

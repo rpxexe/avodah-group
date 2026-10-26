@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const platformType = type === "fintech" ? "fintech" : "proptech";
+    const platformType =
+      type === "fintech" ? "fintech" : type === "voicebot" ? "voicebot" : "proptech";
     const cleanEmail = email.trim().toLowerCase();
 
     // Find existing or create

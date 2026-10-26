@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Building2, ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, FileCheck, Wallet, PhoneCall } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import WobblyCard from "./WobblyCard";
 
@@ -103,13 +103,13 @@ const STAGES: StageInfo[] = [
     max: 0.32,
     targetPct: 0.24,
     phaseNumber: "02",
-    phaseTitle: "STRUCTURAL INTEGRITY",
-    title: "Every Detail\nHas a Purpose.",
+    phaseTitle: "SOLE SELLING MANDATES",
+    title: "Mandates - We Sell Differently.\n We Build technology behind it.",
     subtitle:
-      "Great spaces begin with thoughtful planning, considered design, and meticulous attention to materials. We deconstruct architectural complexity to uncover true structural and commercial value.",
-    tags: ["Spatial Planning", "Material Integrity", "Institutional Quality"],
-    secondaryCtaText: "View Advisory Capabilities",
-    secondaryCtaHref: "#services",
+      "We help real estate developers maximize sales through exclusive mandates, strategic positioning, dedicated sales teams, and technology-driven execution—from pre-launch planning to final inventory closure.",
+    tags: ["Sole Selling Mandates", "Brand Representation", "Developer Solutions"],
+    primaryCtaText: "Developer Mandate Model",
+    primaryCtaHref: "/mandate",
     alignment: "right",
   },
   {
@@ -118,13 +118,13 @@ const STAGES: StageInfo[] = [
     max: 0.50,
     targetPct: 0.42,
     phaseNumber: "03",
-    phaseTitle: "SOLE SELLING MANDATES",
-    title: "Discover Spaces\nWith Potential.",
+    phaseTitle: "LIVING SPACES & PROPTECH",
+    title: "Proptech",
     subtitle:
-      "Supporting Category A & B developers across Mumbai with structured sole selling mandates, dedicated sales machinery, and rigorous project positioning from pre-launch to sell-through.",
-    tags: ["Sole Selling Mandates", "Brand Representation", "Developer Solutions"],
-    primaryCtaText: "Developer Mandate Model",
-    primaryCtaHref: "#services",
+      "We built a 360° proptech Platform that is the core funnel the way, Real Estate is Discovered, Distributed and Sold through our Portal and App",
+    tags: ["PropTech Discovery", "Smart Portals", "Connected Workflows"],
+    secondaryCtaText: "Explore Market Intelligence",
+    secondaryCtaHref: "/proptech",
     alignment: "left",
   },
   {
@@ -134,12 +134,12 @@ const STAGES: StageInfo[] = [
     targetPct: 0.60,
     phaseNumber: "04",
     phaseTitle: "STRATEGIC CAPITAL",
-    title: "Clarity Behind\nEvery Decision.",
+    title: "Fintech",
     subtitle:
-      "Navigate commercial real estate decisions with analytical financial rigor. High-yield institutional leasing advisory, corporate relocations, and structured portfolio underwriting.",
-    tags: ["Commercial Leasing", "Investment Sourcing", "Portfolio Intelligence"],
-    secondaryCtaText: "Explore Market Intelligence",
-    secondaryCtaHref: "#research",
+      "A comprehensive Fintech Platform that simplifies access to loans and financials products through a Single Digital Destination.",
+    tags: ["PropTech Discovery", "Smart Portals", "Connected Workflows"],
+    secondaryCtaText: "Explore PropTech Ecosystem",
+    secondaryCtaHref: "/fintech",
     alignment: "right",
   },
   {
@@ -148,30 +148,15 @@ const STAGES: StageInfo[] = [
     max: 0.85,
     targetPct: 0.77,
     phaseNumber: "05",
-    phaseTitle: "LIVING SPACES & PROPTECH",
-    title: "Designed Around\nThe Way You Live.",
-    subtitle:
-      "Thoughtful architectural interiors brought alive by curated natural light, balanced spatial geometry, and accelerated by our proprietary digital discovery and CRM ecosystem.",
-    tags: ["PropTech Discovery", "Smart Portals", "Connected Workflows"],
-    secondaryCtaText: "Explore PropTech Ecosystem",
-    secondaryCtaHref: "#ecosystem",
-    alignment: "left",
-  },
-  {
-    id: "stage-6",
-    min: 0.87,
-    max: 1.0,
-    targetPct: 0.94,
-    phaseNumber: "06",
     phaseTitle: "THE COMPLETE HORIZON",
     title: "Let's Shape\nWhat Comes Next.",
     subtitle:
       "Connect with Avodah & Khen LLP to explore exclusive mandate opportunities, portfolio acquisitions, and institutional partnerships across the Mumbai Metropolitan Region.",
     tags: ["Sole Selling Mandates", "Leasing & Investments", "PropTech Advisory"],
     primaryCtaText: "Schedule Institutional Consultation",
-    primaryCtaHref: "#contact",
+    primaryCtaHref: "/contact",
     secondaryCtaText: "Review Firm Profile",
-    secondaryCtaHref: "#about",
+    secondaryCtaHref: "/who-we-are",
     alignment: "center",
   },
 ];
@@ -597,15 +582,18 @@ export default function ArchitecturalCanvasSequence() {
                       {/* Proof-Point Stat Chips - Ultra Compact Grid */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full max-w-lg mb-2.5">
                         {[
-                          { value: "₹2,500+ Cr", label: "Mandates Pipeline", icon: TrendingUp },
-                          { value: "20+ Years", label: "MMR Pedigree", icon: Building2 },
-                          { value: "Cat A & B", label: "Sole Selling Mandates", icon: ShieldCheck },
-                          { value: "PropTech", label: "Connected System", icon: Sparkles },
+                          { value: "PropTech", label: "Smart Prop Solutions", icon: Sparkles, href: "/proptech" },
+                          { value: "Mandates", label: "Exclusive Mandates", icon: FileCheck, href: "/mandate" },
+                          { value: "AI Voice Bot", label: "AI-Powered Calling", icon: PhoneCall, href: "/ai-voice-bot" },
+                          { value: "Fintech", label: "Real Estate Financing", icon: Wallet, href: "/fintech" },
                         ].map((stat, i) => {
                           const Icon = stat.icon;
                           return (
                             <MagneticPhysicsWrapper key={i} strength={0.12} className="w-full">
-                              <div className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md border border-[var(--theme-border)] bg-[var(--theme-surface-glass)]/90 backdrop-blur-md shadow-xs group hover:border-[var(--theme-accent)] hover:shadow-xs transition-all duration-200">
+                              <Link
+                                href={stat.href}
+                                className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md border border-[var(--theme-border)] bg-[var(--theme-surface-glass)]/90 backdrop-blur-md shadow-xs group hover:border-[var(--theme-accent)] hover:shadow-xs transition-all duration-200 cursor-pointer block"
+                              >
                                 <div className="flex items-center gap-1 mb-0.5">
                                   <Icon className="w-2.5 h-2.5 text-[var(--theme-accent)] opacity-80 group-hover:scale-110 transition-transform shrink-0" />
                                   <span className="font-serif text-xs sm:text-sm font-semibold text-[var(--theme-text)] whitespace-nowrap">
@@ -615,7 +603,7 @@ export default function ArchitecturalCanvasSequence() {
                                 <span className="text-[7.5px] sm:text-[8px] tracking-wider uppercase text-[var(--theme-text-muted)] font-medium text-center">
                                   {stat.label}
                                 </span>
-                              </div>
+                              </Link>
                             </MagneticPhysicsWrapper>
                           );
                         })}
@@ -653,11 +641,10 @@ export default function ArchitecturalCanvasSequence() {
                             <button
                               key={stage.id}
                               onClick={() => scrollToStage(stage)}
-                              className={`text-[8.5px] tracking-[0.12em] uppercase font-semibold px-2 py-0.5 rounded transition-all duration-200 cursor-pointer ${
-                                activeStage.id === stage.id
-                                  ? "bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c]"
-                                  : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-surface-glass)]"
-                              }`}
+                              className={`text-[8.5px] tracking-[0.12em] uppercase font-semibold px-2 py-0.5 rounded transition-all duration-200 cursor-pointer ${activeStage.id === stage.id
+                                ? "bg-[var(--theme-accent)] text-white dark:text-[#0c0d0c]"
+                                : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text)] hover:bg-[var(--theme-surface-glass)]"
+                                }`}
                             >
                               {stage.phaseNumber}
                             </button>
@@ -690,13 +677,12 @@ export default function ArchitecturalCanvasSequence() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.98 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-xl pointer-events-auto ${
-                  activeStage.alignment === "left"
-                    ? "mr-auto ml-0 text-left"
-                    : activeStage.alignment === "right"
+                className={`w-full max-w-xl pointer-events-auto ${activeStage.alignment === "left"
+                  ? "mr-auto ml-0 text-left"
+                  : activeStage.alignment === "right"
                     ? "ml-auto mr-0 text-left"
                     : "mx-auto text-center"
-                }`}
+                  }`}
               >
                 <WobblyCard wobbleIntensity={8} className="w-full">
                   <div className="p-4 sm:p-7 md:p-8 rounded-2xl bg-[var(--theme-surface-glass)]/92 backdrop-blur-2xl border border-[var(--theme-border)] shadow-[var(--theme-shadow)] relative group hover:border-[var(--theme-accent)]/50 transition-all duration-300">
@@ -724,9 +710,8 @@ export default function ArchitecturalCanvasSequence() {
                     {/* Technical Tags */}
                     {activeStage.tags && activeStage.tags.length > 0 && (
                       <div
-                        className={`flex flex-wrap gap-1.5 mb-4 sm:mb-5 ${
-                          activeStage.alignment === "center" ? "justify-center" : ""
-                        }`}
+                        className={`flex flex-wrap gap-1.5 mb-4 sm:mb-5 ${activeStage.alignment === "center" ? "justify-center" : ""
+                          }`}
                       >
                         {activeStage.tags.map((tag) => (
                           <span
@@ -741,9 +726,8 @@ export default function ArchitecturalCanvasSequence() {
 
                     {/* Action Buttons with Magnetic Physics */}
                     <div
-                      className={`flex flex-wrap items-center gap-2.5 sm:gap-3 ${
-                        activeStage.alignment === "center" ? "justify-center" : ""
-                      }`}
+                      className={`flex flex-wrap items-center gap-2.5 sm:gap-3 ${activeStage.alignment === "center" ? "justify-center" : ""
+                        }`}
                     >
                       {activeStage.primaryCtaText && (
                         <MagneticPhysicsWrapper strength={0.2}>

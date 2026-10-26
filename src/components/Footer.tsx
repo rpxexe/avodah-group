@@ -82,6 +82,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
+                { name: "AI Voice Bot", href: "/ai-voice-bot" },
                 { name: "PropTech Platform", href: "/proptech" },
                 { name: "FinTech Models", href: "/fintech" },
                 { name: "Research & Intelligence", href: "/research" },
